@@ -6,9 +6,27 @@ import { StatusBadge } from "@/components/StatusBadge";
 import {
   mockAccounts,
   mockScheduledPosts,
+  type MockTikTokProfile,
+  type MockTikTokVideo,
   type MockScheduledPost,
   type MockTikTokAccount,
 } from "@/lib/tiktok/mockData";
+
+type AdminReportState = {
+  profile?: MockTikTokProfile;
+  videos?: MockTikTokVideo[];
+  summary?: {
+    totalVideosAnalyzed: number;
+    totalViews: number;
+    totalLikes: number;
+    totalComments: number;
+    totalShares: number;
+    topVideo: string;
+    insights: string[];
+    recommendations: string[];
+  };
+  scopesUsed?: string[];
+};
 
 export function AdminAccountsTable() {
   const searchParams = useSearchParams();
@@ -16,6 +34,7 @@ export function AdminAccountsTable() {
   const [scheduledPosts, setScheduledPosts] =
     useState<MockScheduledPost[]>(mockScheduledPosts);
   const [message, setMessage] = useState<string | null>(null);
+  const [reportState, setReportState] = useState<AdminReportState>({});
   const connectedDepartment = searchParams.get("departmentId");
   const error = searchParams.get("error");
 
@@ -81,6 +100,51 @@ export function AdminAccountsTable() {
     setMessage(
       `${schedule.scheduleId} ran now: ${data.status} (${data.publishId}).`,
     );
+  }
+
+  async function refreshProfileStats() {
+    const response = await fetch("/api/tiktok/report/profile");
+    const data = (await response.json()) as {
+      profile: MockTikTokProfile;
+      scopesUsed: string[];
+    };
+
+    setReportState((current) => ({
+      ...current,
+      profile: data.profile,
+      scopesUsed: data.scopesUsed,
+    }));
+    setMessage("Profile stats refreshed.");
+  }
+
+  async function fetchRecentVideos() {
+    const response = await fetch("/api/tiktok/report/videos");
+    const data = (await response.json()) as {
+      videos: MockTikTokVideo[];
+      scopesUsed: string[];
+    };
+
+    setReportState((current) => ({
+      ...current,
+      videos: data.videos,
+      scopesUsed: data.scopesUsed,
+    }));
+    setMessage("Recent public videos fetched.");
+  }
+
+  async function viewReport() {
+    const response = await fetch("/api/tiktok/report/summary");
+    const data = (await response.json()) as {
+      summary: NonNullable<AdminReportState["summary"]>;
+      scopesUsed: string[];
+    };
+
+    setReportState((current) => ({
+      ...current,
+      summary: data.summary,
+      scopesUsed: data.scopesUsed,
+    }));
+    setMessage("Executive report generated.");
   }
 
   return (
@@ -183,6 +247,151 @@ export function AdminAccountsTable() {
         </div>
       </section>
 
+      <section className="mt-8 rounded-xl border border-[#e1e6ef] bg-white p-6 shadow-sm">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h2 className="text-xl font-semibold text-[#111827]">
+              Reporting Access
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-[#5f6f84]">
+              Accounts authorized for profile, stats, public video list,
+              publishing, and reporting scopes.
+            </p>
+          </div>
+          <StatusBadge tone="info">
+            Scopes: user.info.basic, user.info.profile, user.info.stats, video.list, video.upload, video.publish
+          </StatusBadge>
+        </div>
+
+        <div className="mt-5 grid gap-4 lg:grid-cols-[1fr_0.9fr]">
+          <div className="overflow-hidden rounded-xl border border-[#e7edf6]">
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[760px] text-left text-sm">
+                <thead className="bg-[#f3f6fa] text-xs uppercase text-[#6d7c91]">
+                  <tr>
+                    <th className="px-4 py-3">Department</th>
+                    <th className="px-4 py-3">Account ID</th>
+                    <th className="px-4 py-3">Reporting scopes</th>
+                    <th className="px-4 py-3">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#edf1f7]">
+                  {accounts.map((account) => (
+                    <tr key={`report-${account.accountId}`}>
+                      <td className="px-4 py-3 font-semibold">
+                        {account.department}
+                      </td>
+                      <td className="px-4 py-3 font-mono text-xs">
+                        {account.accountId}
+                      </td>
+                      <td className="px-4 py-3 text-[#42526a]">
+                        {account.scopes.join(", ")}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            onClick={viewReport}
+                            className="rounded-lg bg-[#121827] px-3 py-2 text-xs font-semibold text-white"
+                          >
+                            View Report
+                          </button>
+                          <button
+                            type="button"
+                            onClick={refreshProfileStats}
+                            className="rounded-lg border border-[#d7dde8] bg-white px-3 py-2 text-xs font-semibold text-[#42526a]"
+                          >
+                            Refresh Profile Stats
+                          </button>
+                          <button
+                            type="button"
+                            onClick={fetchRecentVideos}
+                            className="rounded-lg border border-cyan-200 bg-cyan-50 px-3 py-2 text-xs font-semibold text-cyan-800"
+                          >
+                            Fetch Recent Videos
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-[#e7edf6] bg-[#fbfcfe] p-4">
+            <h3 className="text-base font-semibold text-[#111827]">
+              Reporting Result
+            </h3>
+            {reportState.scopesUsed ? (
+              <p className="mt-2 text-sm text-[#5f6f84]">
+                Scopes used: {reportState.scopesUsed.join(", ")}
+              </p>
+            ) : null}
+            {reportState.profile ? (
+              <dl className="mt-4 grid gap-2 text-sm">
+                <AdminInfo label="username" value={reportState.profile.username} />
+                <AdminInfo
+                  label="display_name"
+                  value={reportState.profile.display_name}
+                />
+                <AdminInfo
+                  label="followers"
+                  value={reportState.profile.follower_count.toLocaleString()}
+                />
+                <AdminInfo
+                  label="likes"
+                  value={reportState.profile.likes_count.toLocaleString()}
+                />
+                <AdminInfo
+                  label="videos"
+                  value={reportState.profile.video_count.toLocaleString()}
+                />
+              </dl>
+            ) : null}
+            {reportState.videos ? (
+              <div className="mt-4">
+                <p className="text-sm font-semibold text-[#1d2433]">
+                  Recent videos: {reportState.videos.length}
+                </p>
+                <ul className="mt-2 space-y-2 text-sm text-[#5f6f84]">
+                  {reportState.videos.map((video) => (
+                    <li key={video.id}>
+                      {video.title}: {video.view_count.toLocaleString()} views
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+            {reportState.summary ? (
+              <div className="mt-4 text-sm text-[#42526a]">
+                <p className="font-semibold text-[#1d2433]">
+                  Top video: {reportState.summary.topVideo}
+                </p>
+                <p className="mt-2">
+                  Total views: {reportState.summary.totalViews.toLocaleString()}
+                </p>
+                <p className="mt-2">
+                  Total engagements:{" "}
+                  {(
+                    reportState.summary.totalLikes +
+                    reportState.summary.totalComments +
+                    reportState.summary.totalShares
+                  ).toLocaleString()}
+                </p>
+              </div>
+            ) : null}
+            {!reportState.profile &&
+            !reportState.videos &&
+            !reportState.summary ? (
+              <p className="mt-4 text-sm text-[#6d7c91]">
+                Use the reporting buttons to fetch mock authorized TikTok data.
+              </p>
+            ) : null}
+          </div>
+        </div>
+      </section>
+
       <section className="mt-8 overflow-hidden rounded-xl border border-[#e1e6ef] bg-white shadow-sm">
         <div className="border-b border-[#edf1f7] px-5 py-4">
           <h2 className="text-xl font-semibold text-[#111827]">
@@ -239,6 +448,15 @@ export function AdminAccountsTable() {
         </div>
       </section>
     </main>
+  );
+}
+
+function AdminInfo({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex justify-between gap-3">
+      <dt className="text-[#6d7c91]">{label}</dt>
+      <dd className="text-right font-semibold text-[#1d2433]">{value}</dd>
+    </div>
   );
 }
 

@@ -3,7 +3,12 @@
 import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { StatusBadge } from "@/components/StatusBadge";
-import { departments, tiktokScopes } from "@/lib/tiktok/mockData";
+import {
+  departments,
+  tiktokScopes,
+  type MockTikTokProfile,
+  type MockTikTokVideo,
+} from "@/lib/tiktok/mockData";
 
 type PostMode = "MEDIA_UPLOAD" | "DIRECT_POST";
 type PrivacyLevel =
@@ -42,6 +47,35 @@ type PublishResponse =
       message?: string;
     };
 
+type ProfileReportResponse = {
+  ok: true;
+  scopesUsed: string[];
+  profile: MockTikTokProfile;
+};
+
+type VideosReportResponse = {
+  ok: true;
+  scopesUsed: string[];
+  videos: MockTikTokVideo[];
+};
+
+type SummaryReportResponse = {
+  ok: true;
+  reportType: string;
+  generatedFor: string;
+  scopesUsed: string[];
+  summary: {
+    totalVideosAnalyzed: number;
+    totalViews: number;
+    totalLikes: number;
+    totalComments: number;
+    totalShares: number;
+    topVideo: string;
+    insights: string[];
+    recommendations: string[];
+  };
+};
+
 export function DemoPublisher() {
   const searchParams = useSearchParams();
   const initialDepartmentId = searchParams.get("departmentId") || "kdtm";
@@ -77,6 +111,13 @@ export function DemoPublisher() {
     null,
   );
   const [clientError, setClientError] = useState<string | null>(null);
+  const [profileReport, setProfileReport] =
+    useState<ProfileReportResponse | null>(null);
+  const [videosReport, setVideosReport] =
+    useState<VideosReportResponse | null>(null);
+  const [summaryReport, setSummaryReport] =
+    useState<SummaryReportResponse | null>(null);
+  const [isReporting, setIsReporting] = useState(false);
 
   const selectedDepartment = useMemo(
     () =>
@@ -167,6 +208,36 @@ export function DemoPublisher() {
       });
     } finally {
       setIsPublishing(false);
+    }
+  }
+
+  async function fetchProfileStats() {
+    setIsReporting(true);
+    try {
+      const response = await fetch("/api/tiktok/report/profile");
+      setProfileReport((await response.json()) as ProfileReportResponse);
+    } finally {
+      setIsReporting(false);
+    }
+  }
+
+  async function fetchRecentVideos() {
+    setIsReporting(true);
+    try {
+      const response = await fetch("/api/tiktok/report/videos");
+      setVideosReport((await response.json()) as VideosReportResponse);
+    } finally {
+      setIsReporting(false);
+    }
+  }
+
+  async function generateExecutiveReport() {
+    setIsReporting(true);
+    try {
+      const response = await fetch("/api/tiktok/report/summary");
+      setSummaryReport((await response.json()) as SummaryReportResponse);
+    } finally {
+      setIsReporting(false);
     }
   }
 
@@ -444,6 +515,191 @@ export function DemoPublisher() {
           </section>
         </div>
       </div>
+
+      <section className="mt-6 rounded-xl border border-[#e1e6ef] bg-white p-6 shadow-sm">
+        <StepLabel number="5" title="TikTok Reporting & Executive Summary" />
+        <p className="mt-4 max-w-4xl text-sm leading-6 text-[#5f6f84]">
+          Reporting demo for leadership: read authorized TikTok profile data,
+          account statistics, recent public videos, and generate a mock AI
+          executive summary from TikTok data authorized by the user.
+        </p>
+        <div className="mt-5 flex flex-wrap gap-3">
+          <button
+            type="button"
+            onClick={fetchProfileStats}
+            disabled={isReporting}
+            className="inline-flex min-h-11 items-center justify-center rounded-lg bg-[#121827] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#20293a] disabled:cursor-not-allowed disabled:bg-[#8792a2]"
+          >
+            Fetch TikTok Profile & Stats
+          </button>
+          <button
+            type="button"
+            onClick={fetchRecentVideos}
+            disabled={isReporting}
+            className="inline-flex min-h-11 items-center justify-center rounded-lg border border-[#d7dde8] bg-white px-4 py-2 text-sm font-semibold text-[#1d2433] shadow-sm transition hover:bg-[#f8fafc] disabled:cursor-not-allowed disabled:text-[#8792a2]"
+          >
+            Fetch Recent Public Videos
+          </button>
+          <button
+            type="button"
+            onClick={generateExecutiveReport}
+            disabled={isReporting}
+            className="inline-flex min-h-11 items-center justify-center rounded-lg border border-cyan-200 bg-cyan-50 px-4 py-2 text-sm font-semibold text-cyan-800 shadow-sm transition hover:bg-cyan-100 disabled:cursor-not-allowed disabled:text-[#8792a2]"
+          >
+            Generate AI Executive Report
+          </button>
+        </div>
+
+        {profileReport ? (
+          <div className="mt-6 rounded-xl border border-[#e7edf6] bg-[#fbfcfe] p-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <h3 className="text-lg font-semibold text-[#111827]">
+                TikTok Profile & Account Stats
+              </h3>
+              <StatusBadge tone="info">
+                {`Scopes: ${profileReport.scopesUsed.join(", ")}`}
+              </StatusBadge>
+            </div>
+            <dl className="mt-4 grid gap-3 text-sm md:grid-cols-2">
+              <InfoRow label="username" value={profileReport.profile.username} />
+              <InfoRow
+                label="display_name"
+                value={profileReport.profile.display_name}
+              />
+              <InfoRow
+                label="bio_description"
+                value={profileReport.profile.bio_description}
+              />
+              <InfoRow
+                label="profile_deep_link"
+                value={profileReport.profile.profile_deep_link}
+              />
+              <InfoRow
+                label="is_verified"
+                value={String(profileReport.profile.is_verified)}
+              />
+              <InfoRow
+                label="follower_count"
+                value={profileReport.profile.follower_count.toLocaleString()}
+              />
+              <InfoRow
+                label="following_count"
+                value={profileReport.profile.following_count.toLocaleString()}
+              />
+              <InfoRow
+                label="likes_count"
+                value={profileReport.profile.likes_count.toLocaleString()}
+              />
+              <InfoRow
+                label="video_count"
+                value={profileReport.profile.video_count.toLocaleString()}
+              />
+            </dl>
+          </div>
+        ) : null}
+
+        {videosReport ? (
+          <div className="mt-6 overflow-hidden rounded-xl border border-[#e7edf6] bg-[#fbfcfe]">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#e7edf6] px-4 py-4">
+              <h3 className="text-lg font-semibold text-[#111827]">
+                Recent Public Videos
+              </h3>
+              <StatusBadge tone="info">
+                {`Scope: ${videosReport.scopesUsed.join(", ")}`}
+              </StatusBadge>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[980px] border-collapse text-left text-sm">
+                <thead className="bg-[#f3f6fa] text-xs uppercase text-[#6d7c91]">
+                  <tr>
+                    <th className="px-4 py-3">video_id</th>
+                    <th className="px-4 py-3">title</th>
+                    <th className="px-4 py-3">create_time</th>
+                    <th className="px-4 py-3">duration</th>
+                    <th className="px-4 py-3">share_url</th>
+                    <th className="px-4 py-3">views</th>
+                    <th className="px-4 py-3">likes</th>
+                    <th className="px-4 py-3">comments</th>
+                    <th className="px-4 py-3">shares</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#edf1f7]">
+                  {videosReport.videos.map((video) => (
+                    <tr key={video.id}>
+                      <td className="px-4 py-3 font-mono text-xs">
+                        {video.id}
+                      </td>
+                      <td className="px-4 py-3 font-semibold">{video.title}</td>
+                      <td className="px-4 py-3">{video.create_time}</td>
+                      <td className="px-4 py-3">{video.duration}s</td>
+                      <td className="px-4 py-3 text-cyan-700">
+                        {video.share_url}
+                      </td>
+                      <td className="px-4 py-3">
+                        {video.view_count.toLocaleString()}
+                      </td>
+                      <td className="px-4 py-3">
+                        {video.like_count.toLocaleString()}
+                      </td>
+                      <td className="px-4 py-3">
+                        {video.comment_count.toLocaleString()}
+                      </td>
+                      <td className="px-4 py-3">
+                        {video.share_count.toLocaleString()}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ) : null}
+
+        {summaryReport ? (
+          <div className="mt-6 rounded-xl border border-emerald-200 bg-emerald-50 p-5">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <h3 className="text-lg font-semibold text-emerald-950">
+                Mock AI Executive Summary
+              </h3>
+              <StatusBadge tone="success">
+                {`Scopes: ${summaryReport.scopesUsed.join(", ")}`}
+              </StatusBadge>
+            </div>
+            <p className="mt-3 text-sm leading-6 text-emerald-900">
+              This is a mock AI summary based on TikTok data authorized by the
+              user for {summaryReport.generatedFor}.
+            </p>
+            <dl className="mt-4 grid gap-3 text-sm md:grid-cols-3">
+              <InfoBlock
+                label="Total videos"
+                value={String(summaryReport.summary.totalVideosAnalyzed)}
+              />
+              <InfoBlock
+                label="Total views"
+                value={summaryReport.summary.totalViews.toLocaleString()}
+              />
+              <InfoBlock
+                label="Total likes"
+                value={summaryReport.summary.totalLikes.toLocaleString()}
+              />
+              <InfoBlock
+                label="Total comments"
+                value={summaryReport.summary.totalComments.toLocaleString()}
+              />
+              <InfoBlock
+                label="Total shares"
+                value={summaryReport.summary.totalShares.toLocaleString()}
+              />
+              <InfoBlock label="Top video" value={summaryReport.summary.topVideo} />
+            </dl>
+            <ReportList title="Insights" items={summaryReport.summary.insights} />
+            <ReportList
+              title="Recommendations"
+              items={summaryReport.summary.recommendations}
+            />
+          </div>
+        ) : null}
+      </section>
     </main>
   );
 }
@@ -604,6 +860,22 @@ function RadioOption({
       <input type="radio" checked={checked} onChange={onChange} />
       <span>{label}</span>
     </label>
+  );
+}
+
+function ReportList({ title, items }: { title: string; items: string[] }) {
+  return (
+    <div className="mt-5">
+      <h4 className="text-sm font-semibold text-emerald-950">{title}</h4>
+      <ul className="mt-3 space-y-2 text-sm leading-6 text-emerald-900">
+        {items.map((item) => (
+          <li key={item} className="flex gap-3">
+            <span className="mt-2 h-1.5 w-1.5 rounded-full bg-emerald-600" />
+            <span>{item}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 

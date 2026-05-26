@@ -17,7 +17,7 @@ export type BuildTikTokOAuthUrlInput = {
 export function buildTikTokOAuthUrl({
   clientKey,
   redirectUri,
-  scopes = "user.info.basic,video.upload,video.publish",
+  scopes = "user.info.basic,user.info.profile,user.info.stats,video.upload,video.publish,video.list",
   state,
 }: BuildTikTokOAuthUrlInput): string {
   const url = new URL("https://www.tiktok.com/v2/auth/authorize/");

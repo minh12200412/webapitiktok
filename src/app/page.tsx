@@ -19,8 +19,9 @@ export default function Home() {
               </p>
               <p className="mt-5 max-w-3xl text-base leading-7 text-[#5f6f84]">
                 This web app allows authorized departments to connect their
-                TikTok accounts and upload approved marketing content to TikTok
-                draft/inbox flow using TikTok Login Kit and Content Posting API.
+                TikTok accounts, publish approved marketing content, schedule
+                Direct Post publishing, and generate internal TikTok performance
+                reports using authorized TikTok data.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <ButtonLink href="/tiktok-publisher-demo">View Demo</ButtonLink>
@@ -44,7 +45,7 @@ export default function Home() {
                       Review Readiness
                     </p>
                     <p className="mt-1 text-2xl font-bold text-[#111827]">
-                      Login + Upload Demo
+                      Login, Publish + Report Demo
                     </p>
                   </div>
                   <StatusBadge tone="success">Ready</StatusBadge>
@@ -59,7 +60,8 @@ export default function Home() {
                   <div className="flex items-center justify-between gap-3">
                     <dt className="text-[#6d7c91]">Scopes</dt>
                     <dd className="text-right font-semibold text-[#1d2433]">
-                      user.info.basic, video.upload, video.publish
+                      user.info.basic, user.info.profile, user.info.stats,
+                      video.upload, video.publish, video.list
                     </dd>
                   </div>
                   <div className="flex items-center justify-between gap-3">
@@ -90,13 +92,13 @@ export default function Home() {
             />
             <FeatureCard
               accent="emerald"
-              title="Department Account Mapping"
-              description="Maps each internal department to its assigned TikTok publisher account without exposing tokens."
+              title="Direct Post & Scheduling"
+              description="Direct publishes approved content with video.publish and stores internal schedules for later backend publishing."
             />
             <FeatureCard
               accent="amber"
-              title="Approval Before Upload"
-              description="Requires internal approval before any upload flow is started for marketing content."
+              title="TikTok Reporting & Executive Summary"
+              description="Reads authorized profile, stats, and public videos to generate leadership-ready performance summaries."
             />
           </div>
         </section>

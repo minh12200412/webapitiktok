@@ -16,6 +16,8 @@ Local port: 3008
 - Added mock/live-ready TikTok OAuth and publishing route handlers.
 - Added Direct Post demo using `video.publish`.
 - Added internal scheduled publishing demo and run-now mock API.
+- Added TikTok reporting demo using `user.info.profile`, `user.info.stats`, and `video.list`.
+- Added mock executive summary reporting for leadership review.
 - Added env handling, TikTok OAuth helpers, mock data, mock publisher, and secret redaction utility.
 - Added deployment and TikTok Developer Portal setup documentation.
 - Configured local dev and start scripts to use port `3008`.
@@ -37,6 +39,9 @@ Production build route output included:
 /api/tiktok/oauth/callback
 /api/tiktok/oauth/start
 /api/tiktok/publish/mock
+/api/tiktok/report/profile
+/api/tiktok/report/summary
+/api/tiktok/report/videos
 /api/tiktok/schedules/run-now
 /privacy
 /terms
@@ -67,6 +72,9 @@ POST /api/tiktok/publish/mock pending approval -> 400 APPROVAL_REQUIRED
 POST /api/tiktok/publish/mock direct post -> 200 PUBLISH_COMPLETE
 POST /api/tiktok/publish/mock scheduled direct post -> 200 SCHEDULED
 POST /api/tiktok/schedules/run-now -> 200 PUBLISH_COMPLETE
+GET /api/tiktok/report/profile -> 200
+GET /api/tiktok/report/videos -> 200
+GET /api/tiktok/report/summary -> 200
 POST /api/tiktok/disconnect -> 200
 ```
 
@@ -85,3 +93,4 @@ Location: http://localhost:3008/tiktok-publisher-demo?mockConnected=1&department
 - Log files are ignored with `*.log`.
 - Direct Post requires explicit user consent.
 - Scheduled posts are represented as internal mock records and use Direct Post when run.
+- Reporting data is shown as authorized mock profile, stats, public video list, and executive summary output.

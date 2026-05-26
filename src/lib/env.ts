@@ -9,7 +9,8 @@ export type ServerEnv = {
 };
 
 const DEFAULT_APP_BASE_URL = "http://localhost:3008";
-const DEFAULT_TIKTOK_SCOPES = "user.info.basic,video.upload,video.publish";
+const DEFAULT_TIKTOK_SCOPES =
+  "user.info.basic,user.info.profile,user.info.stats,video.upload,video.publish,video.list";
 
 export function getServerEnv(): ServerEnv {
   return {
