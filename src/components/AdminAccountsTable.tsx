@@ -232,8 +232,9 @@ export function AdminAccountsTable() {
       ) : null}
 
       {connectedDepartment ? (
-        <p className="mt-6 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-800">
-          Connected account for department: {connectedDepartment}
+        <p className="mt-6 rounded-lg border border-cyan-200 bg-cyan-50 px-4 py-3 text-sm font-semibold text-cyan-800">
+          OAuth callback returned for department: {connectedDepartment}. The
+          table status below is based only on live token store records.
         </p>
       ) : null}
       {error ? (
@@ -275,27 +276,17 @@ export function AdminAccountsTable() {
                       account.nickname}
                   </td>
                   <td className="px-4 py-4">
-                    <StatusBadge
-                      tone={statusTone(
-                        liveAccountById.has(account.accountId)
-                          ? "Connected"
-                          : account.status,
-                      )}
-                    >
+                    <StatusBadge tone={statusTone(liveAccountById.has(account.accountId))}>
                       {liveAccountById.has(account.accountId)
                         ? "Connected"
-                        : account.status}
+                        : "Disconnected"}
                     </StatusBadge>
                   </td>
                   <td className="px-4 py-4 text-[#42526a]">
-                    {liveAccountById.get(account.accountId)?.scope ||
-                      (account.scopes.length > 0
-                        ? account.scopes.join(", ")
-                        : "-")}
+                    {liveAccountById.get(account.accountId)?.scope || "-"}
                   </td>
                   <td className="px-4 py-4 text-[#42526a]">
-                    {liveAccountById.get(account.accountId)?.updatedAt ||
-                      account.lastConnected}
+                    {liveAccountById.get(account.accountId)?.updatedAt || "-"}
                   </td>
                   <td className="px-4 py-4">
                     <div className="flex gap-2">
@@ -536,14 +527,6 @@ function AdminInfo({ label, value }: { label: string; value: string }) {
   );
 }
 
-function statusTone(status: MockTikTokAccount["status"]) {
-  if (status === "Connected") {
-    return "success";
-  }
-
-  if (status === "Token expired") {
-    return "warning";
-  }
-
-  return "default";
+function statusTone(isConnected: boolean) {
+  return isConnected ? "success" : "default";
 }
