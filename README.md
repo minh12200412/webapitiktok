@@ -39,10 +39,58 @@ TIKTOK_CLIENT_SECRET=
 TIKTOK_REDIRECT_URI=http://localhost:3008/api/tiktok/oauth/callback
 TIKTOK_SCOPES=user.info.basic,user.info.profile,user.info.stats,video.upload,video.publish,video.list
 TIKTOK_LIVE_OAUTH=false
+DATABASE_URL=
+TOKEN_ENCRYPTION_KEY=
 TOKEN_ENCRYPTION_KEY=
 ```
 
 If `TIKTOK_CLIENT_KEY` or `TIKTOK_REDIRECT_URI` is missing, `/api/tiktok/oauth/start` redirects back to the demo page with a mock connected account.
+
+## Live TikTok OAuth
+
+For live OAuth on Vercel, set these environment variables:
+
+```text
+APP_BASE_URL=https://webapitiktok.vercel.app
+TIKTOK_CLIENT_KEY=<from TikTok Developer Portal>
+TIKTOK_CLIENT_SECRET=<from TikTok Developer Portal>
+TIKTOK_REDIRECT_URI=https://webapitiktok.vercel.app/api/tiktok/oauth/callback
+TIKTOK_SCOPES=user.info.basic,user.info.profile,user.info.stats,video.upload,video.publish,video.list
+TIKTOK_LIVE_OAUTH=true
+DATABASE_URL=<Supabase or Vercel Postgres connection string>
+TOKEN_ENCRYPTION_KEY=<strong random key>
+```
+
+Flow per department:
+
+1. Open `/admin/tiktok-accounts`.
+2. Click `Connect` for the target department/account ID.
+3. TikTok redirects to `/api/tiktok/oauth/callback` with `code` and `state`.
+4. The backend exchanges the code for `access_token`, `refresh_token`, `open_id`, scope, and expiry metadata.
+5. Tokens are encrypted server-side and stored by `accountId` and `departmentId`.
+6. Admin UI shows Connected when token metadata exists, but never displays tokens.
+
+If `DATABASE_URL` is not configured, the app uses an in-memory token store for local development only and shows: `Live tokens are not persisted without DB`. This is not suitable for production because Vercel serverless instances do not guarantee memory persistence.
+
+The PostgreSQL/Supabase token table is created automatically if the DB user has permission:
+
+```sql
+create table if not exists tiktok_accounts (
+  id text primary key default md5(random()::text || clock_timestamp()::text),
+  department_id text not null,
+  account_id text not null unique,
+  open_id text not null,
+  scope text not null,
+  access_token_encrypted text not null,
+  refresh_token_encrypted text not null,
+  expires_at timestamptz not null,
+  refresh_expires_at timestamptz not null,
+  nickname text,
+  avatar_url text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+```
 
 ## GitHub Setup
 

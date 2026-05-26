@@ -1,3 +1,5 @@
+import { getTokenStore } from "@/lib/tiktok/tokenStore";
+
 export async function POST(request: Request) {
   let body: unknown;
 
@@ -21,6 +23,10 @@ export async function POST(request: Request) {
       },
       { status: 400 },
     );
+  }
+
+  if (typeof body.accountId === "string") {
+    await getTokenStore().deleteToken(body.accountId);
   }
 
   return Response.json({

@@ -5,6 +5,7 @@ export type ServerEnv = {
   TIKTOK_REDIRECT_URI: string;
   TIKTOK_SCOPES: string;
   TIKTOK_LIVE_OAUTH: boolean;
+  DATABASE_URL: string;
   TOKEN_ENCRYPTION_KEY: string;
 };
 
@@ -22,6 +23,7 @@ export function getServerEnv(): ServerEnv {
     TIKTOK_REDIRECT_URI: process.env.TIKTOK_REDIRECT_URI ?? "",
     TIKTOK_SCOPES: process.env.TIKTOK_SCOPES ?? DEFAULT_TIKTOK_SCOPES,
     TIKTOK_LIVE_OAUTH: process.env.TIKTOK_LIVE_OAUTH === "true",
+    DATABASE_URL: process.env.DATABASE_URL ?? "",
     TOKEN_ENCRYPTION_KEY: process.env.TOKEN_ENCRYPTION_KEY ?? "",
   };
 }

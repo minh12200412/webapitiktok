@@ -1,8 +1,7 @@
 import { getServerEnv } from "@/lib/env";
-import {
-  decodeState,
-  exchangeTikTokCodeForToken,
-} from "@/lib/tiktok/oauth";
+import { exchangeCodeForToken } from "@/lib/tiktok/liveOAuth";
+import { decodeState } from "@/lib/tiktok/oauth";
+import { getTokenStore } from "@/lib/tiktok/tokenStore";
 
 export const dynamic = "force-dynamic";
 
@@ -35,6 +34,12 @@ export async function GET(request: Request) {
     return Response.redirect(redirectUrl);
   }
 
+  if (Date.now() - decodedState.timestamp > 30 * 60 * 1000) {
+    const redirectUrl = new URL("/admin/tiktok-accounts", request.url);
+    redirectUrl.searchParams.set("error", "expired_state");
+    return Response.redirect(redirectUrl);
+  }
+
   if (!env.TIKTOK_LIVE_OAUTH) {
     const redirectUrl = new URL("/admin/tiktok-accounts", request.url);
     redirectUrl.searchParams.set("connected", "1");
@@ -54,11 +59,23 @@ export async function GET(request: Request) {
   }
 
   try {
-    await exchangeTikTokCodeForToken({
+    const token = await exchangeCodeForToken({
       code,
       clientKey: env.TIKTOK_CLIENT_KEY,
       clientSecret: env.TIKTOK_CLIENT_SECRET,
       redirectUri: env.TIKTOK_REDIRECT_URI,
+    });
+
+    const now = Date.now();
+    await getTokenStore().saveToken(decodedState.accountId, decodedState.departmentId, {
+      openId: token.open_id,
+      scope: token.scope,
+      accessToken: token.access_token,
+      refreshToken: token.refresh_token,
+      expiresAt: new Date(now + token.expires_in * 1000).toISOString(),
+      refreshExpiresAt: new Date(
+        now + token.refresh_expires_in * 1000,
+      ).toISOString(),
     });
 
     const redirectUrl = new URL("/admin/tiktok-accounts", request.url);

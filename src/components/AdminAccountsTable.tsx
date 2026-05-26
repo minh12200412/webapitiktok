@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { StatusBadge } from "@/components/StatusBadge";
 import {
@@ -28,6 +28,24 @@ type AdminReportState = {
   scopesUsed?: string[];
 };
 
+type LiveTokenAccount = {
+  departmentId: string;
+  accountId: string;
+  openId: string;
+  scope: string;
+  expiresAt: string;
+  refreshExpiresAt: string;
+  nickname?: string;
+  avatarUrl?: string;
+  updatedAt?: string;
+};
+
+type TokenStoreStatus = {
+  kind: "postgres" | "memory";
+  persistent: boolean;
+  warning?: string;
+};
+
 export function AdminAccountsTable() {
   const searchParams = useSearchParams();
   const [accounts, setAccounts] = useState<MockTikTokAccount[]>(mockAccounts);
@@ -35,8 +53,46 @@ export function AdminAccountsTable() {
     useState<MockScheduledPost[]>(mockScheduledPosts);
   const [message, setMessage] = useState<string | null>(null);
   const [reportState, setReportState] = useState<AdminReportState>({});
+  const [liveAccounts, setLiveAccounts] = useState<LiveTokenAccount[]>([]);
+  const [tokenStoreStatus, setTokenStoreStatus] =
+    useState<TokenStoreStatus | null>(null);
   const connectedDepartment = searchParams.get("departmentId");
   const error = searchParams.get("error");
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadLiveAccounts() {
+      const response = await fetch("/api/tiktok/tokens/accounts", {
+        cache: "no-store",
+      });
+
+      if (!response.ok) {
+        return;
+      }
+
+      const data = (await response.json()) as {
+        accounts: LiveTokenAccount[];
+        tokenStore: TokenStoreStatus;
+      };
+
+      if (isMounted) {
+        setLiveAccounts(data.accounts);
+        setTokenStoreStatus(data.tokenStore);
+      }
+    }
+
+    loadLiveAccounts();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const liveAccountById = useMemo(
+    () => new Map(liveAccounts.map((account) => [account.accountId, account])),
+    [liveAccounts],
+  );
 
   async function disconnect(account: MockTikTokAccount) {
     setMessage(null);
@@ -67,6 +123,9 @@ export function AdminAccountsTable() {
             }
           : item,
       ),
+    );
+    setLiveAccounts((current) =>
+      current.filter((item) => item.accountId !== account.accountId),
     );
     setMessage(`${account.department} disconnected.`);
   }
@@ -166,6 +225,12 @@ export function AdminAccountsTable() {
         </div>
       </div>
 
+      {tokenStoreStatus?.warning ? (
+        <p className="mt-6 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-800">
+          {tokenStoreStatus.warning}
+        </p>
+      ) : null}
+
       {connectedDepartment ? (
         <p className="mt-6 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-800">
           Connected account for department: {connectedDepartment}
@@ -206,20 +271,31 @@ export function AdminAccountsTable() {
                     {account.accountId}
                   </td>
                   <td className="px-4 py-4 text-[#42526a]">
-                    {account.nickname}
+                    {liveAccountById.get(account.accountId)?.nickname ||
+                      account.nickname}
                   </td>
                   <td className="px-4 py-4">
-                    <StatusBadge tone={statusTone(account.status)}>
-                      {account.status}
+                    <StatusBadge
+                      tone={statusTone(
+                        liveAccountById.has(account.accountId)
+                          ? "Connected"
+                          : account.status,
+                      )}
+                    >
+                      {liveAccountById.has(account.accountId)
+                        ? "Connected"
+                        : account.status}
                     </StatusBadge>
                   </td>
                   <td className="px-4 py-4 text-[#42526a]">
-                    {account.scopes.length > 0
-                      ? account.scopes.join(", ")
-                      : "-"}
+                    {liveAccountById.get(account.accountId)?.scope ||
+                      (account.scopes.length > 0
+                        ? account.scopes.join(", ")
+                        : "-")}
                   </td>
                   <td className="px-4 py-4 text-[#42526a]">
-                    {account.lastConnected}
+                    {liveAccountById.get(account.accountId)?.updatedAt ||
+                      account.lastConnected}
                   </td>
                   <td className="px-4 py-4">
                     <div className="flex gap-2">
