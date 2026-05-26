@@ -1,65 +1,106 @@
-import Image from "next/image";
+import { ButtonLink } from "@/components/ButtonLink";
+import { FeatureCard } from "@/components/FeatureCard";
+import { PageShell } from "@/components/PageShell";
+import { StatusBadge } from "@/components/StatusBadge";
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+    <PageShell>
+      <main>
+        <section className="border-b border-[#e1e6ef] bg-[#f7f8fb]">
+          <div className="mx-auto grid max-w-6xl gap-10 px-5 py-16 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
+            <div>
+              <StatusBadge tone="info">Demo/Sandbox Mode</StatusBadge>
+              <h1 className="mt-6 max-w-3xl text-4xl font-bold tracking-normal text-[#111827] sm:text-5xl">
+                TanPhatETek TikTok Publisher
+              </h1>
+              <p className="mt-4 text-xl font-semibold text-[#42526a]">
+                Internal TikTok publishing tool for authorized departments.
+              </p>
+              <p className="mt-5 max-w-3xl text-base leading-7 text-[#5f6f84]">
+                This web app allows authorized departments to connect their
+                TikTok accounts and upload approved marketing content to TikTok
+                draft/inbox flow using TikTok Login Kit and Content Posting API.
+              </p>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <ButtonLink href="/tiktok-publisher-demo">View Demo</ButtonLink>
+                <ButtonLink href="/admin/tiktok-accounts" variant="secondary">
+                  Manage TikTok Accounts
+                </ButtonLink>
+                <ButtonLink href="/privacy" variant="ghost">
+                  Privacy Policy
+                </ButtonLink>
+                <ButtonLink href="/terms" variant="ghost">
+                  Terms of Service
+                </ButtonLink>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-[#e1e6ef] bg-white p-5 shadow-sm">
+              <div className="rounded-xl border border-[#e7edf6] bg-[#fbfcfe] p-5">
+                <div className="flex items-center justify-between border-b border-[#e7edf6] pb-4">
+                  <div>
+                    <p className="text-sm font-semibold text-[#5f6f84]">
+                      Review Readiness
+                    </p>
+                    <p className="mt-1 text-2xl font-bold text-[#111827]">
+                      Login + Upload Demo
+                    </p>
+                  </div>
+                  <StatusBadge tone="success">Ready</StatusBadge>
+                </div>
+                <dl className="mt-5 grid gap-4 text-sm">
+                  <div className="flex items-center justify-between gap-3">
+                    <dt className="text-[#6d7c91]">Products</dt>
+                    <dd className="text-right font-semibold text-[#1d2433]">
+                      Login Kit, Content Posting API
+                    </dd>
+                  </div>
+                  <div className="flex items-center justify-between gap-3">
+                    <dt className="text-[#6d7c91]">Scopes</dt>
+                    <dd className="text-right font-semibold text-[#1d2433]">
+                      user.info.basic, video.upload
+                    </dd>
+                  </div>
+                  <div className="flex items-center justify-between gap-3">
+                    <dt className="text-[#6d7c91]">Direct Post</dt>
+                    <dd className="font-semibold text-rose-700">Disabled</dd>
+                  </div>
+                  <div className="flex items-center justify-between gap-3">
+                    <dt className="text-[#6d7c91]">Token display</dt>
+                    <dd className="font-semibold text-emerald-700">Hidden</dd>
+                  </div>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-5 py-12">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <FeatureCard
+              accent="cyan"
+              title="Login Kit OAuth"
+              description="Connects an authorized department TikTok account through OAuth and stores only server-side token metadata in production."
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+            <FeatureCard
+              accent="rose"
+              title="Content Posting API"
+              description="Prepares approved posts for TikTok draft/inbox upload with the video.upload scope."
+            />
+            <FeatureCard
+              accent="emerald"
+              title="Department Account Mapping"
+              description="Maps each internal department to its assigned TikTok publisher account without exposing tokens."
+            />
+            <FeatureCard
+              accent="amber"
+              title="Approval Before Upload"
+              description="Requires internal approval before any upload flow is started for marketing content."
+            />
+          </div>
+        </section>
       </main>
-    </div>
+    </PageShell>
   );
 }

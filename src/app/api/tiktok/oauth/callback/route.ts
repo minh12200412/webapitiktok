@@ -1,0 +1,75 @@
+import { getServerEnv } from "@/lib/env";
+import {
+  decodeState,
+  exchangeTikTokCodeForToken,
+} from "@/lib/tiktok/oauth";
+
+export const dynamic = "force-dynamic";
+
+export async function GET(request: Request) {
+  const env = getServerEnv();
+  const requestUrl = new URL(request.url);
+  const code = requestUrl.searchParams.get("code");
+  const state = requestUrl.searchParams.get("state");
+  const error = requestUrl.searchParams.get("error");
+  const errorDescription = requestUrl.searchParams.get("error_description");
+
+  if (error) {
+    const redirectUrl = new URL("/admin/tiktok-accounts", request.url);
+    redirectUrl.searchParams.set("error", errorDescription || error);
+    return Response.redirect(redirectUrl);
+  }
+
+  if (!code || !state) {
+    const redirectUrl = new URL("/admin/tiktok-accounts", request.url);
+    redirectUrl.searchParams.set("error", "missing_code_or_state");
+    return Response.redirect(redirectUrl);
+  }
+
+  let decodedState;
+  try {
+    decodedState = decodeState(state);
+  } catch {
+    const redirectUrl = new URL("/admin/tiktok-accounts", request.url);
+    redirectUrl.searchParams.set("error", "invalid_state");
+    return Response.redirect(redirectUrl);
+  }
+
+  if (!env.TIKTOK_LIVE_OAUTH) {
+    const redirectUrl = new URL("/admin/tiktok-accounts", request.url);
+    redirectUrl.searchParams.set("connected", "1");
+    redirectUrl.searchParams.set("departmentId", decodedState.departmentId);
+    redirectUrl.searchParams.set("accountId", decodedState.accountId);
+    return Response.redirect(redirectUrl);
+  }
+
+  if (
+    !env.TIKTOK_CLIENT_KEY ||
+    !env.TIKTOK_CLIENT_SECRET ||
+    !env.TIKTOK_REDIRECT_URI
+  ) {
+    const redirectUrl = new URL("/admin/tiktok-accounts", request.url);
+    redirectUrl.searchParams.set("error", "missing_live_oauth_env");
+    return Response.redirect(redirectUrl);
+  }
+
+  try {
+    await exchangeTikTokCodeForToken({
+      code,
+      clientKey: env.TIKTOK_CLIENT_KEY,
+      clientSecret: env.TIKTOK_CLIENT_SECRET,
+      redirectUri: env.TIKTOK_REDIRECT_URI,
+    });
+
+    const redirectUrl = new URL("/admin/tiktok-accounts", request.url);
+    redirectUrl.searchParams.set("connected", "1");
+    redirectUrl.searchParams.set("live", "1");
+    redirectUrl.searchParams.set("departmentId", decodedState.departmentId);
+    redirectUrl.searchParams.set("accountId", decodedState.accountId);
+    return Response.redirect(redirectUrl);
+  } catch {
+    const redirectUrl = new URL("/admin/tiktok-accounts", request.url);
+    redirectUrl.searchParams.set("error", "token_exchange_failed");
+    return Response.redirect(redirectUrl);
+  }
+}
