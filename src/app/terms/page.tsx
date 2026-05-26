@@ -4,11 +4,13 @@ import { StatusBadge } from "@/components/StatusBadge";
 const terms = [
   "Only authorized employees and departments of Tan Phat ETEK may use this tool.",
   "Content must be reviewed and approved internally before upload.",
-  "The app uploads content to TikTok draft/inbox flow in this phase.",
-  "Direct posting is disabled in this version.",
+  "The app can upload content to TikTok draft/inbox flow using video.upload.",
+  "The app can directly publish approved content using video.publish only after the user gives clear consent in the app.",
+  "Scheduled posts are stored by TanPhatETek TikTok Publisher and the backend publishes them at the scheduled time through TikTok Direct Post API.",
   "Users must comply with TikTok policies and Tan Phat ETEK company policy.",
   "Users can disconnect their TikTok account from this app.",
   "The company may suspend access if misuse is detected.",
+  "This app does not use TikTok Share Kit or Webhook in this phase.",
 ];
 
 export default function TermsPage() {

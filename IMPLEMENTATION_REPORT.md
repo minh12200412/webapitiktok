@@ -14,6 +14,8 @@ Local port: 3008
 - Added TikTok Publisher demo flow for Login Kit and Content Posting API review video.
 - Added internal TikTok account management page with department mapping.
 - Added mock/live-ready TikTok OAuth and publishing route handlers.
+- Added Direct Post demo using `video.publish`.
+- Added internal scheduled publishing demo and run-now mock API.
 - Added env handling, TikTok OAuth helpers, mock data, mock publisher, and secret redaction utility.
 - Added deployment and TikTok Developer Portal setup documentation.
 - Configured local dev and start scripts to use port `3008`.
@@ -35,6 +37,7 @@ Production build route output included:
 /api/tiktok/oauth/callback
 /api/tiktok/oauth/start
 /api/tiktok/publish/mock
+/api/tiktok/schedules/run-now
 /privacy
 /terms
 /tiktok-publisher-demo
@@ -61,6 +64,9 @@ GET /api/health -> 200
 GET /api/tiktok/oauth/start?departmentId=kdtm&accountId=tiktok_kdtm_main -> 302
 POST /api/tiktok/publish/mock approved payload -> 200
 POST /api/tiktok/publish/mock pending approval -> 400 APPROVAL_REQUIRED
+POST /api/tiktok/publish/mock direct post -> 200 PUBLISH_COMPLETE
+POST /api/tiktok/publish/mock scheduled direct post -> 200 SCHEDULED
+POST /api/tiktok/schedules/run-now -> 200 PUBLISH_COMPLETE
 POST /api/tiktok/disconnect -> 200
 ```
 
@@ -77,3 +83,5 @@ Location: http://localhost:3008/tiktok-publisher-demo?mockConnected=1&department
 - Tokens are not displayed in UI.
 - Mock phase does not store live tokens.
 - Log files are ignored with `*.log`.
+- Direct Post requires explicit user consent.
+- Scheduled posts are represented as internal mock records and use Direct Post when run.

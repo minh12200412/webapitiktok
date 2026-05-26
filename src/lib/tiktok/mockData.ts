@@ -13,7 +13,21 @@ export type MockTikTokAccount = {
   status: "Connected" | "Disconnected" | "Token expired";
   scopes: string[];
   lastConnected: string;
+  directPostEnabled: boolean;
 };
+
+export type MockScheduledPost = {
+  scheduleId: string;
+  department: string;
+  scheduledAt: string;
+  status: "SCHEDULED" | "READY";
+};
+
+export const tiktokScopes = [
+  "user.info.basic",
+  "video.upload",
+  "video.publish",
+];
 
 export const departments: Department[] = [
   {
@@ -55,8 +69,9 @@ export const mockAccounts: MockTikTokAccount[] = [
     accountId: "tiktok_kdtm_main",
     nickname: "TikTok KDTM",
     status: "Connected",
-    scopes: ["user.info.basic", "video.upload"],
+    scopes: tiktokScopes,
     lastConnected: "2026-05-12 09:20",
+    directPostEnabled: true,
   },
   {
     departmentId: "kd1",
@@ -64,8 +79,9 @@ export const mockAccounts: MockTikTokAccount[] = [
     accountId: "tiktok_kd1_main",
     nickname: "-",
     status: "Disconnected",
-    scopes: [],
+    scopes: tiktokScopes,
     lastConnected: "-",
+    directPostEnabled: true,
   },
   {
     departmentId: "kd2",
@@ -73,8 +89,9 @@ export const mockAccounts: MockTikTokAccount[] = [
     accountId: "tiktok_kd2_main",
     nickname: "-",
     status: "Disconnected",
-    scopes: [],
+    scopes: tiktokScopes,
     lastConnected: "-",
+    directPostEnabled: true,
   },
   {
     departmentId: "koisu",
@@ -82,8 +99,9 @@ export const mockAccounts: MockTikTokAccount[] = [
     accountId: "tiktok_koisu_main",
     nickname: "TikTok KOISU",
     status: "Connected",
-    scopes: ["user.info.basic", "video.upload"],
+    scopes: tiktokScopes,
     lastConnected: "2026-05-14 15:45",
+    directPostEnabled: true,
   },
   {
     departmentId: "tanphat",
@@ -91,8 +109,24 @@ export const mockAccounts: MockTikTokAccount[] = [
     accountId: "tiktok_tanphat_main",
     nickname: "TikTok Tan Phat ETEK",
     status: "Token expired",
-    scopes: ["user.info.basic", "video.upload"],
+    scopes: tiktokScopes,
     lastConnected: "2026-04-28 11:05",
+    directPostEnabled: true,
+  },
+];
+
+export const mockScheduledPosts: MockScheduledPost[] = [
+  {
+    scheduleId: "mock_schedule_kdtm_001",
+    department: "KDTM",
+    scheduledAt: "2026-05-30 09:00 Asia/Ho_Chi_Minh",
+    status: "SCHEDULED",
+  },
+  {
+    scheduleId: "mock_schedule_koisu_002",
+    department: "KOISU",
+    scheduledAt: "2026-06-02 14:30 Asia/Ho_Chi_Minh",
+    status: "SCHEDULED",
   },
 ];
 

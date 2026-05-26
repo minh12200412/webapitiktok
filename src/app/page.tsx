@@ -59,12 +59,12 @@ export default function Home() {
                   <div className="flex items-center justify-between gap-3">
                     <dt className="text-[#6d7c91]">Scopes</dt>
                     <dd className="text-right font-semibold text-[#1d2433]">
-                      user.info.basic, video.upload
+                      user.info.basic, video.upload, video.publish
                     </dd>
                   </div>
                   <div className="flex items-center justify-between gap-3">
                     <dt className="text-[#6d7c91]">Direct Post</dt>
-                    <dd className="font-semibold text-rose-700">Disabled</dd>
+                    <dd className="font-semibold text-emerald-700">Enabled</dd>
                   </div>
                   <div className="flex items-center justify-between gap-3">
                     <dt className="text-[#6d7c91]">Token display</dt>

@@ -2,7 +2,7 @@
 
 Public Next.js web app for TikTok Developer App Review and internal TikTok publisher management for Tan Phat ETEK.
 
-The phase 1 app runs in mock/sandbox mode. It demonstrates Login Kit OAuth, department account mapping, approved content preparation, and Content Posting API upload to TikTok draft/inbox flow. It does not store live tokens and does not perform live TikTok publishing by default.
+The phase 1 app runs in mock/sandbox mode. It demonstrates Login Kit OAuth, department account mapping, approved content preparation, Content Posting API upload to TikTok draft/inbox flow, Direct Post, and scheduled publishing. It does not store live tokens and does not call live TikTok APIs by default.
 
 ## Local Setup
 
@@ -37,7 +37,7 @@ APP_BASE_URL=http://localhost:3008
 TIKTOK_CLIENT_KEY=
 TIKTOK_CLIENT_SECRET=
 TIKTOK_REDIRECT_URI=http://localhost:3008/api/tiktok/oauth/callback
-TIKTOK_SCOPES=user.info.basic,video.upload
+TIKTOK_SCOPES=user.info.basic,video.upload,video.publish
 TIKTOK_LIVE_OAUTH=false
 TOKEN_ENCRYPTION_KEY=
 ```
@@ -66,7 +66,7 @@ Recommended production environment values:
 ```text
 APP_BASE_URL=https://<vercel-domain>
 TIKTOK_REDIRECT_URI=https://<vercel-domain>/api/tiktok/oauth/callback
-TIKTOK_SCOPES=user.info.basic,video.upload
+TIKTOK_SCOPES=user.info.basic,video.upload,video.publish
 TIKTOK_LIVE_OAUTH=false
 ```
 
@@ -87,7 +87,8 @@ Products and scopes:
 
 ```text
 Products: Login Kit + Content Posting API
-Scopes: user.info.basic + video.upload
+Scopes: user.info.basic + video.upload + video.publish
+Direct Post: enabled
 ```
 
 Phase 1 exclusions:
@@ -95,7 +96,6 @@ Phase 1 exclusions:
 ```text
 Do not enable Webhook.
 Do not enable Share Kit.
-Do not enable Direct Post.
 ```
 
 ## Demo Video Checklist
@@ -105,9 +105,10 @@ Do not enable Direct Post.
 3. Select a department and connect TikTok sandbox/mock.
 4. Show connected TikTok account, masked open_id, and scopes.
 5. Prepare approved content.
-6. Upload to TikTok draft.
-7. Show Content Posting API, `video.upload`, `SEND_TO_USER_INBOX`, and `publishId`.
-8. Open `/admin/tiktok-accounts` and show department account mapping.
+6. Upload to TikTok draft and show `video.upload`, `SEND_TO_USER_INBOX`, and `publishId`.
+7. Switch to Direct Post, check consent, publish now, and show `video.publish` with `PUBLISH_COMPLETE`.
+8. Switch to Schedule for later, choose a future time, and show `SCHEDULED` with `scheduleId`.
+9. Open `/admin/tiktok-accounts`, show department account mapping, Direct Post Enabled, Scheduled Posts, and Run now.
 
 ## API Routes
 
@@ -117,6 +118,7 @@ GET  /api/tiktok/oauth/start?departmentId=kdtm&accountId=tiktok_kdtm_main
 GET  /api/tiktok/oauth/callback
 POST /api/tiktok/publish/mock
 POST /api/tiktok/disconnect
+POST /api/tiktok/schedules/run-now
 ```
 
 Approved publish payload:
@@ -131,10 +133,19 @@ Approved publish payload:
     "postMode": "MEDIA_UPLOAD",
     "title": "KOISU WA-4018T4 High Pressure Washer",
     "caption": "Approved marketing content for garage and car care businesses.",
-    "hashtags": "#tanphatetek #koisu #garage #carcare"
+    "hashtags": "#tanphatetek #koisu #garage #carcare",
+    "privacyLevel": "SELF_ONLY",
+    "disableComment": false,
+    "disableDuet": false,
+    "disableStitch": false,
+    "isAigc": false,
+    "userConsent": false,
+    "scheduleMode": "now"
   }
 }
 ```
+
+Direct Post payload uses `"postMode": "DIRECT_POST"` and requires `"userConsent": true`. Scheduled Direct Post uses `"scheduleMode": "later"` and a future `"scheduledAt"` value.
 
 ## Security Notes
 
@@ -142,6 +153,8 @@ Approved publish payload:
 - Client secrets, access tokens, and refresh tokens must not be logged.
 - Secrets belong in environment variables.
 - Production token storage requires a database, encryption, and restricted access controls.
+- Direct Post requires explicit user consent in the publishing UI.
+- Scheduled post metadata is stored by the internal system before backend publishing.
 - This phase uses mock/in-memory data only.
 
 ## Scripts
