@@ -100,7 +100,7 @@ Checklist:
 
 1. Connect the TikTok account first from `/admin/tiktok-accounts`.
 2. Confirm `/api/tiktok/tokens/accounts` includes the target `accountId`, for example `tiktok_kdtm_main`.
-3. Use a public HTTPS video URL. The Content Posting API pull-from-URL flow cannot read local files.
+3. Use a public HTTPS video URL under the verified domain. The Content Posting API pull-from-URL flow cannot read local files.
 4. Test `MEDIA_UPLOAD` first. This sends the video to TikTok inbox/draft flow with `video.upload`.
 5. Then test `DIRECT_POST` with `SELF_ONLY`. While the app is in sandbox or under review, public posting may be limited by TikTok.
 6. Do not expose access tokens, refresh tokens, or client secrets in UI, logs, or browser responses.
@@ -143,7 +143,7 @@ Live publish payload example:
     {
       "type": "video",
       "sourceType": "url",
-      "url": "https://webapitiktok.vercel.app/sample/koisu-wa4018t4-demo.mp4"
+  "url": "https://webapitiktok.vercel.app/api/media/file/tiktok/videos/koisu-wa4018t4-demo.mp4"
     }
   ]
 }
@@ -164,6 +164,14 @@ https://webapitiktok.vercel.app/sample/koisu-wa4018t4-demo.mp4
 ## Media Upload Endpoint
 
 The app provides a protected media upload endpoint so automation can upload a local video or image and get a public URL that TikTok can pull.
+
+TikTok PULL_FROM_URL requires a URL on a verified domain. Do not send direct Vercel Blob or Supabase Storage URLs such as `public.blob.vercel-storage.com` to TikTok. `/api/media/upload` stores the object in Blob/Supabase, but returns a verified proxy URL under:
+
+```text
+https://webapitiktok.vercel.app/api/media/file/<storageKey>
+```
+
+The proxy route streams the file directly from `webapitiktok.vercel.app` and supports byte range requests when the upstream storage supports them.
 
 ```text
 POST /api/media/upload
@@ -244,10 +252,18 @@ Success response:
 ```json
 {
   "ok": true,
-  "url": "https://public-url-to-file",
+  "url": "https://webapitiktok.vercel.app/api/media/file/tiktok/videos/koisu-wa4018t4-demo.mp4",
+  "storageUrl": "https://public.blob.vercel-storage.com/...",
   "sizeBytes": 123,
   "contentType": "video/mp4"
 }
+```
+
+Test returned file URL and byte range:
+
+```powershell
+curl.exe -I "https://webapitiktok.vercel.app/api/media/file/tiktok/videos/koisu-wa4018t4-demo.mp4"
+curl.exe -I -H "Range: bytes=0-1023" "https://webapitiktok.vercel.app/api/media/file/tiktok/videos/koisu-wa4018t4-demo.mp4"
 ```
 
 If storage is not configured:

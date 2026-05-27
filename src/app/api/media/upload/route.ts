@@ -1,5 +1,10 @@
 import { put } from "@vercel/blob";
 import { createClient } from "@supabase/supabase-js";
+import {
+  buildVerifiedMediaUrl,
+  redactStorageUrl,
+  saveMediaMetadata,
+} from "@/lib/media/mediaStore";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -63,10 +68,18 @@ export async function POST(request: Request) {
       contentType: file.type,
       token: process.env.BLOB_READ_WRITE_TOKEN,
     });
+    saveMediaMetadata({
+      key,
+      storageUrl: blob.url,
+      sizeBytes: file.size,
+      contentType: file.type,
+      createdAt: new Date().toISOString(),
+    });
 
     return Response.json({
       ok: true,
-      url: blob.url,
+      url: buildVerifiedMediaUrl(request, key),
+      storageUrl: redactStorageUrl(blob.url),
       sizeBytes: file.size,
       contentType: file.type,
     });
@@ -105,10 +118,18 @@ export async function POST(request: Request) {
     const publicUrl = supabase.storage
       .from(process.env.SUPABASE_BUCKET)
       .getPublicUrl(key);
+    saveMediaMetadata({
+      key,
+      storageUrl: publicUrl.data.publicUrl,
+      sizeBytes: file.size,
+      contentType: file.type,
+      createdAt: new Date().toISOString(),
+    });
 
     return Response.json({
       ok: true,
-      url: publicUrl.data.publicUrl,
+      url: buildVerifiedMediaUrl(request, key),
+      storageUrl: redactStorageUrl(publicUrl.data.publicUrl),
       sizeBytes: file.size,
       contentType: file.type,
     });

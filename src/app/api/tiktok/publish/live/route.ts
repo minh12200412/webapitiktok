@@ -244,6 +244,26 @@ function validateLivePublishPayload(body: unknown): ValidationResult {
     };
   }
 
+  if (isStorageDirectUrl(asset.url)) {
+    return {
+      ok: false,
+      status: 400,
+      errorCode: "MEDIA_URL_NOT_VERIFIED_DOMAIN",
+      message:
+        "Do not send direct Vercel Blob/Supabase URLs to TikTok. Use the verified /api/media/file URL.",
+    };
+  }
+
+  if (!isVerifiedMediaUrl(asset.url)) {
+    return {
+      ok: false,
+      status: 400,
+      errorCode: "MEDIA_URL_NOT_VERIFIED_DOMAIN",
+      message:
+        "Video URL must be under the verified webapitiktok.vercel.app domain.",
+    };
+  }
+
   return {
     ok: true,
     payload: {
@@ -293,6 +313,35 @@ function isHttpsUrl(value: string): boolean {
   try {
     const url = new URL(value);
     return url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+function isVerifiedMediaUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    const verifiedOrigin =
+      process.env.APP_BASE_URL?.replace(/\/+$/, "") ||
+      "https://webapitiktok.vercel.app";
+
+    return (
+      url.origin === verifiedOrigin &&
+      url.pathname.startsWith("/api/media/file/")
+    );
+  } catch {
+    return false;
+  }
+}
+
+function isStorageDirectUrl(value: string): boolean {
+  try {
+    const hostname = new URL(value).hostname;
+
+    return (
+      hostname.endsWith(".vercel-storage.com") ||
+      hostname.includes("supabase.co")
+    );
   } catch {
     return false;
   }
