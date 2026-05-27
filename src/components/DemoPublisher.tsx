@@ -17,6 +17,7 @@ type PrivacyLevel =
   | "MUTUAL_FOLLOW_FRIENDS"
   | "FOLLOWER_OF_CREATOR";
 type ScheduleMode = "now" | "later";
+type PublishApiMode = "mock" | "live";
 
 type PublishResponse =
   | {
@@ -24,10 +25,11 @@ type PublishResponse =
       publishId: string;
       status: string;
       mode: string;
-      product: string;
+      product?: string;
       scopeUsed: string;
-      departmentId: string;
-      accountId: string;
+      departmentId?: string;
+      accountId?: string;
+      raw?: unknown;
     }
   | {
       ok: true;
@@ -45,6 +47,7 @@ type PublishResponse =
       ok: false;
       errorCode: string;
       message?: string;
+      raw?: unknown;
     };
 
 type ProfileReportResponse = {
@@ -94,8 +97,10 @@ export function DemoPublisher() {
     "#tanphatetek #koisu #garage #carcare",
   );
   const [mediaUrl, setMediaUrl] = useState(
-    "https://example.com/media/koisu-wa-4018t4-demo.mp4",
+    "https://webapitiktok.vercel.app/sample/koisu-wa4018t4-demo.mp4",
   );
+  const [publishApiMode, setPublishApiMode] =
+    useState<PublishApiMode>("mock");
   const [postMode, setPostMode] = useState<PostMode>("MEDIA_UPLOAD");
   const [privacyLevel, setPrivacyLevel] =
     useState<PrivacyLevel>("SELF_ONLY");
@@ -169,8 +174,19 @@ export function DemoPublisher() {
       return;
     }
 
+    if (publishApiMode === "live" && scheduleMode === "later") {
+      setClientError(
+        "Live publish endpoint supports immediate publish tests. Use mock mode for schedule demo.",
+      );
+      return;
+    }
+
     setIsPublishing(true);
 
+    const liveHashtags = hashtags
+      .split(/\s+/)
+      .map((value) => value.trim())
+      .filter(Boolean);
     const payload = {
       departmentId,
       accountId,
@@ -180,7 +196,7 @@ export function DemoPublisher() {
         postMode,
         title,
         caption,
-        hashtags,
+        hashtags: publishApiMode === "live" ? liveHashtags : hashtags,
         privacyLevel,
         disableComment,
         disableDuet,
@@ -190,14 +206,29 @@ export function DemoPublisher() {
         scheduleMode,
         scheduledAt: scheduleMode === "later" ? scheduledAt : undefined,
       },
+      assets:
+        publishApiMode === "live"
+          ? [
+              {
+                type: "video",
+                sourceType: "url",
+                url: mediaUrl,
+              },
+            ]
+          : undefined,
     };
 
     try {
-      const response = await fetch("/api/tiktok/publish/mock", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      const response = await fetch(
+        publishApiMode === "live"
+          ? "/api/tiktok/publish/live"
+          : "/api/tiktok/publish/mock",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        },
+      );
       const data = (await response.json()) as PublishResponse;
       setPublishResult(data);
     } catch {
@@ -440,6 +471,31 @@ export function DemoPublisher() {
           <section className="rounded-xl border border-[#e1e6ef] bg-white p-6 shadow-sm">
             <StepLabel number="4" title="Schedule" />
             <div className="mt-5 grid gap-4">
+              <div className="grid gap-3 rounded-lg border border-[#e7edf6] bg-[#fbfcfe] p-4">
+                <p className="text-sm font-semibold text-[#1d2433]">
+                  Publish API mode
+                </p>
+                <div className="grid gap-3 text-sm font-semibold text-[#1d2433] sm:grid-cols-2">
+                  <RadioOption
+                    label="Mock"
+                    checked={publishApiMode === "mock"}
+                    onChange={() => setPublishApiMode("mock")}
+                  />
+                  <RadioOption
+                    label="Live"
+                    checked={publishApiMode === "live"}
+                    onChange={() => setPublishApiMode("live")}
+                  />
+                </div>
+                {publishApiMode === "live" ? (
+                  <p className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-800">
+                    Live mode will send content to the authorized TikTok
+                    account. Use SELF_ONLY while the app is under review or
+                    sandbox.
+                  </p>
+                ) : null}
+              </div>
+
               <div className="grid gap-3 text-sm font-semibold text-[#1d2433] sm:grid-cols-2">
                 <RadioOption
                   label="Publish now"
@@ -490,6 +546,10 @@ export function DemoPublisher() {
                   label="Direct Post"
                   value="Enabled in Developer Portal"
                   valueClassName="text-emerald-700"
+                />
+                <InfoRow
+                  label="API mode"
+                  value={publishApiMode === "live" ? "LIVE" : "MOCK"}
                 />
               </div>
 
@@ -741,7 +801,7 @@ function PublishResultPanel({ result }: { result: PublishResponse }) {
           </>
         ) : null}
         <InfoRow label="Mode" value={result.mode} />
-        <InfoRow label="Product" value={result.product} />
+        <InfoRow label="Product" value={result.product || "Content Posting API"} />
         <InfoRow label="Scope used" value={result.scopeUsed} />
       </dl>
     </div>

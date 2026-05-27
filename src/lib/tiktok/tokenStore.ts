@@ -27,6 +27,11 @@ export type StoredTikTokAccount = {
   updatedAt?: string;
 };
 
+export type StoredTikTokToken = StoredTikTokAccount & {
+  accessToken: string;
+  refreshToken: string;
+};
+
 export type TokenStoreStatus = {
   kind: "postgres" | "memory";
   persistent: boolean;
@@ -40,6 +45,7 @@ export interface TokenStore {
     tokenData: TokenData,
   ): Promise<void>;
   getToken(accountId: string): Promise<StoredTikTokAccount | null>;
+  getTokenData(accountId: string): Promise<StoredTikTokToken | null>;
   deleteToken(accountId: string): Promise<void>;
   listAccounts(): Promise<StoredTikTokAccount[]>;
   getStatus(): TokenStoreStatus;
@@ -102,6 +108,23 @@ class MemoryTokenStore implements TokenStore {
   async getToken(accountId: string) {
     const account = memoryAccounts.get(accountId);
     return account ? publicAccount(account) : null;
+  }
+
+  async getTokenData(accountId: string) {
+    const account = memoryAccounts.get(accountId);
+
+    if (!account) {
+      return null;
+    }
+
+    return {
+      ...publicAccount(account),
+      accessToken: decryptToken(account.accessTokenEncrypted, this.encryptionKey),
+      refreshToken: decryptToken(
+        account.refreshTokenEncrypted,
+        this.encryptionKey,
+      ),
+    };
   }
 
   async deleteToken(accountId: string) {
@@ -193,6 +216,35 @@ class PostgresTokenStore implements TokenStore {
     return rows[0] ? mapRow(rows[0]) : null;
   }
 
+  async getTokenData(accountId: string) {
+    const sql = await getPostgresClient(this.databaseUrl);
+    await ensureTable(sql);
+    const rows = await sql`
+      select id, department_id, account_id, open_id, scope, expires_at,
+        refresh_expires_at, nickname, avatar_url, created_at, updated_at,
+        access_token_encrypted, refresh_token_encrypted
+      from tiktok_accounts
+      where account_id = ${accountId}
+      limit 1
+    `;
+
+    if (!rows[0]) {
+      return null;
+    }
+
+    return {
+      ...mapRow(rows[0]),
+      accessToken: decryptToken(
+        String(rows[0].access_token_encrypted),
+        this.encryptionKey,
+      ),
+      refreshToken: decryptToken(
+        String(rows[0].refresh_token_encrypted),
+        this.encryptionKey,
+      ),
+    };
+  }
+
   async deleteToken(accountId: string) {
     const sql = await getPostgresClient(this.databaseUrl);
     await ensureTable(sql);
@@ -270,6 +322,27 @@ function encryptToken(value: string, keySource: string): string {
   const tag = cipher.getAuthTag();
 
   return `${iv.toString("base64url")}.${tag.toString("base64url")}.${encrypted.toString("base64url")}`;
+}
+
+function decryptToken(value: string, keySource: string): string {
+  const [ivValue, tagValue, encryptedValue] = value.split(".");
+
+  if (!ivValue || !tagValue || !encryptedValue) {
+    throw new Error("invalid_encrypted_token");
+  }
+
+  const key = crypto.createHash("sha256").update(keySource || "dev-key").digest();
+  const decipher = crypto.createDecipheriv(
+    "aes-256-gcm",
+    key,
+    Buffer.from(ivValue, "base64url"),
+  );
+  decipher.setAuthTag(Buffer.from(tagValue, "base64url"));
+
+  return Buffer.concat([
+    decipher.update(Buffer.from(encryptedValue, "base64url")),
+    decipher.final(),
+  ]).toString("utf8");
 }
 
 function publicAccount(

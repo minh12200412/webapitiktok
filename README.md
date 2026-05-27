@@ -92,6 +92,75 @@ create table if not exists tiktok_accounts (
 );
 ```
 
+## Live Publish Test
+
+Use this only after TikTok OAuth has connected an account and the token store contains account metadata.
+
+Checklist:
+
+1. Connect the TikTok account first from `/admin/tiktok-accounts`.
+2. Confirm `/api/tiktok/tokens/accounts` includes the target `accountId`, for example `tiktok_kdtm_main`.
+3. Use a public HTTPS video URL. The Content Posting API pull-from-URL flow cannot read local files.
+4. Test `MEDIA_UPLOAD` first. This sends the video to TikTok inbox/draft flow with `video.upload`.
+5. Then test `DIRECT_POST` with `SELF_ONLY`. While the app is in sandbox or under review, public posting may be limited by TikTok.
+6. Do not expose access tokens, refresh tokens, or client secrets in UI, logs, or browser responses.
+
+The demo page has a `Mock / Live` toggle. In Live mode it calls:
+
+```text
+POST /api/tiktok/publish/live
+```
+
+Opening the endpoint in a browser returns a helper response:
+
+```text
+GET /api/tiktok/publish/live
+```
+
+Live publish payload example:
+
+```json
+{
+  "departmentId": "kdtm",
+  "accountId": "tiktok_kdtm_main",
+  "approval": {
+    "status": "approved",
+    "approvedBy": "pho_phong"
+  },
+  "post": {
+    "mediaType": "VIDEO",
+    "postMode": "MEDIA_UPLOAD",
+    "title": "KOISU WA-4018T4 High Pressure Washer",
+    "caption": "Approved marketing content for garage and car care businesses.",
+    "hashtags": ["#tanphatetek", "#koisu", "#garage"],
+    "privacyLevel": "SELF_ONLY",
+    "disableComment": false,
+    "disableDuet": false,
+    "disableStitch": false,
+    "isAigc": true
+  },
+  "assets": [
+    {
+      "type": "video",
+      "sourceType": "url",
+      "url": "https://webapitiktok.vercel.app/sample/koisu-wa4018t4-demo.mp4"
+    }
+  ]
+}
+```
+
+Do not commit large videos. For a small test asset, place a compact MP4 file at:
+
+```text
+public/sample/koisu-wa4018t4-demo.mp4
+```
+
+After deploy, the public URL will be:
+
+```text
+https://webapitiktok.vercel.app/sample/koisu-wa4018t4-demo.mp4
+```
+
 ## GitHub Setup
 
 ```bash
@@ -185,6 +254,8 @@ POST /api/tiktok/schedules/run-now
 GET  /api/tiktok/report/profile
 GET  /api/tiktok/report/videos
 GET  /api/tiktok/report/summary
+GET  /api/tiktok/publish/live
+POST /api/tiktok/publish/live
 ```
 
 Approved publish payload:

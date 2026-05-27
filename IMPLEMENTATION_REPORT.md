@@ -20,6 +20,7 @@ Local port: 3008
 - Added mock executive summary reporting for leadership review.
 - Added live TikTok OAuth token exchange flow.
 - Added encrypted token store adapter with PostgreSQL/Supabase-compatible `DATABASE_URL` support and in-memory local fallback.
+- Added live TikTok Content Posting API endpoint for MEDIA_UPLOAD and DIRECT_POST using stored OAuth tokens.
 - Added env handling, TikTok OAuth helpers, mock data, mock publisher, and secret redaction utility.
 - Added deployment and TikTok Developer Portal setup documentation.
 - Configured local dev and start scripts to use port `3008`.
@@ -40,6 +41,7 @@ Production build route output included:
 /api/tiktok/disconnect
 /api/tiktok/oauth/callback
 /api/tiktok/oauth/start
+/api/tiktok/publish/live
 /api/tiktok/publish/mock
 /api/tiktok/report/profile
 /api/tiktok/report/summary
@@ -79,6 +81,8 @@ GET /api/tiktok/report/profile -> 200
 GET /api/tiktok/report/videos -> 200
 GET /api/tiktok/report/summary -> 200
 GET /api/tiktok/tokens/accounts -> 200
+GET /api/tiktok/publish/live -> 200
+POST /api/tiktok/publish/live without token -> 404 TOKEN_NOT_FOUND
 POST /api/tiktok/disconnect -> 200
 ```
 
@@ -100,3 +104,4 @@ Location: http://localhost:3008/tiktok-publisher-demo?mockConnected=1&department
 - Reporting data is shown as authorized mock profile, stats, public video list, and executive summary output.
 - Live tokens are encrypted before storage and never returned to the UI.
 - Without `DATABASE_URL`, live token metadata uses in-memory storage only and is not persistent on Vercel.
+- Live publish responses never include access tokens, refresh tokens, or client secrets.
