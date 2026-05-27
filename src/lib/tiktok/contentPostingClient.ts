@@ -19,7 +19,6 @@ export type TikTokVideoInitPayload = {
     disable_duet?: boolean;
     disable_comment?: boolean;
     disable_stitch?: boolean;
-    is_aigc?: boolean;
   };
   source_info: {
     source: "PULL_FROM_URL";

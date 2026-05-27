@@ -41,7 +41,6 @@ TIKTOK_SCOPES=user.info.basic,user.info.profile,user.info.stats,video.upload,vid
 TIKTOK_LIVE_OAUTH=false
 DATABASE_URL=
 TOKEN_ENCRYPTION_KEY=
-TOKEN_ENCRYPTION_KEY=
 ```
 
 If `TIKTOK_CLIENT_KEY` or `TIKTOK_REDIRECT_URI` is missing, `/api/tiktok/oauth/start` redirects back to the demo page with a mock connected account.
@@ -102,8 +101,9 @@ Checklist:
 2. Confirm `/api/tiktok/tokens/accounts` includes the target `accountId`, for example `tiktok_kdtm_main`.
 3. Use a public HTTPS video URL under the verified domain. The Content Posting API pull-from-URL flow cannot read local files.
 4. Test `MEDIA_UPLOAD` first. This sends the video to TikTok inbox/draft flow with `video.upload`.
-5. Then test `DIRECT_POST` with `SELF_ONLY`. While the app is in sandbox or under review, public posting may be limited by TikTok.
-6. Do not expose access tokens, refresh tokens, or client secrets in UI, logs, or browser responses.
+5. Then test `DIRECT_POST` only with `SELF_ONLY` while the app is in sandbox or under review. Direct Post can be limited until TikTok completes audit/integration review.
+6. Direct Post calls `creator_info/query` first and only uses privacy levels returned by TikTok `privacy_level_options`.
+7. Do not expose access tokens, refresh tokens, or client secrets in UI, logs, or browser responses.
 
 The demo page has a `Mock / Live` toggle. In Live mode it calls:
 
