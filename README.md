@@ -161,6 +161,104 @@ After deploy, the public URL will be:
 https://webapitiktok.vercel.app/sample/koisu-wa4018t4-demo.mp4
 ```
 
+## Media Upload Endpoint
+
+The app provides a protected media upload endpoint so automation can upload a local video or image and get a public URL that TikTok can pull.
+
+```text
+POST /api/media/upload
+```
+
+Security:
+
+```text
+Authorization: Bearer <MEDIA_UPLOAD_TOKEN>
+```
+
+Generate a strong token locally:
+
+```powershell
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
+Set these env vars in Vercel:
+
+```text
+MEDIA_UPLOAD_TOKEN=<strong random token>
+MEDIA_UPLOAD_MAX_MB=80
+```
+
+Vercel Blob setup:
+
+1. In Vercel, open the project.
+2. Go to Storage.
+3. Create a Blob store.
+4. Connect it to this project.
+5. Ensure `BLOB_READ_WRITE_TOKEN` is available in project environment variables.
+
+Supabase Storage alternative:
+
+```text
+SUPABASE_URL=
+SUPABASE_SERVICE_ROLE_KEY=
+SUPABASE_BUCKET=
+```
+
+The bucket must be public or configured to return a public URL TikTok can access. Keep the service role key server-side only.
+
+Allowed file types:
+
+```text
+video/mp4
+video/quicktime
+video/webm
+image/jpeg
+image/png
+image/webp
+```
+
+PowerShell upload test:
+
+```powershell
+$token = "<MEDIA_UPLOAD_TOKEN>"
+$file = "D:\path\to\koisu-wa4018t4-demo.mp4"
+curl.exe -X POST "https://webapitiktok.vercel.app/api/media/upload" `
+  -H "Authorization: Bearer $token" `
+  -F "file=@$file;type=video/mp4" `
+  -F "folder=tiktok/videos" `
+  -F "filename=koisu-wa4018t4-demo.mp4"
+```
+
+curl upload test:
+
+```bash
+curl -X POST "https://webapitiktok.vercel.app/api/media/upload" \
+  -H "Authorization: Bearer $MEDIA_UPLOAD_TOKEN" \
+  -F "file=@./koisu-wa4018t4-demo.mp4;type=video/mp4" \
+  -F "folder=tiktok/videos" \
+  -F "filename=koisu-wa4018t4-demo.mp4"
+```
+
+Success response:
+
+```json
+{
+  "ok": true,
+  "url": "https://public-url-to-file",
+  "sizeBytes": 123,
+  "contentType": "video/mp4"
+}
+```
+
+If storage is not configured:
+
+```json
+{
+  "ok": false,
+  "errorCode": "MEDIA_STORAGE_NOT_CONFIGURED"
+}
+```
+
 ## GitHub Setup
 
 ```bash
