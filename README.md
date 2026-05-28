@@ -39,6 +39,7 @@ TIKTOK_CLIENT_SECRET=
 TIKTOK_REDIRECT_URI=http://localhost:3008/api/tiktok/oauth/callback
 TIKTOK_SCOPES=user.info.basic,user.info.profile,user.info.stats,video.upload,video.publish,video.list
 TIKTOK_LIVE_OAUTH=false
+TIKTOK_ALLOW_PUBLIC_DIRECT_POST_IN_SANDBOX=false
 DATABASE_URL=
 TOKEN_ENCRYPTION_KEY=
 ```
@@ -56,6 +57,7 @@ TIKTOK_CLIENT_SECRET=<from TikTok Developer Portal>
 TIKTOK_REDIRECT_URI=https://webapitiktok.vercel.app/api/tiktok/oauth/callback
 TIKTOK_SCOPES=user.info.basic,user.info.profile,user.info.stats,video.upload,video.publish,video.list
 TIKTOK_LIVE_OAUTH=true
+TIKTOK_ALLOW_PUBLIC_DIRECT_POST_IN_SANDBOX=false
 DATABASE_URL=<Supabase or Vercel Postgres connection string>
 TOKEN_ENCRYPTION_KEY=<strong random key>
 ```
@@ -103,7 +105,8 @@ Checklist:
 4. Test `MEDIA_UPLOAD` first. This sends the video to TikTok inbox/draft flow with `video.upload`.
 5. Then test `DIRECT_POST` only with `SELF_ONLY` while the app is in sandbox or under review. Direct Post can be limited until TikTok completes audit/integration review.
 6. Direct Post calls `creator_info/query` first and only uses privacy levels returned by TikTok `privacy_level_options`.
-7. Do not expose access tokens, refresh tokens, or client secrets in UI, logs, or browser responses.
+7. To explicitly test public Direct Post in sandbox, set `TIKTOK_ALLOW_PUBLIC_DIRECT_POST_IN_SANDBOX=true` and submit `"privacyLevel": "PUBLIC_TO_EVERYONE"`. The API will use that privacy level only when TikTok returns it in `privacy_level_options`; otherwise it falls back to `SELF_ONLY` when available.
+8. Do not expose access tokens, refresh tokens, or client secrets in UI, logs, or browser responses.
 
 The demo page has a `Mock / Live` toggle. In Live mode it calls:
 

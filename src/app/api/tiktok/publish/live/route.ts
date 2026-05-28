@@ -59,8 +59,11 @@ type ValidationResult =
 
 type DirectPostDebug = {
   mode: "DIRECT_POST";
+  requestedPrivacyLevel: TikTokPrivacyLevel | null;
   selectedPrivacyLevel: TikTokPrivacyLevel | null;
   creatorPrivacyOptions: TikTokPrivacyLevel[] | null;
+  wasPrivacyForced: boolean;
+  allowPublicSandbox: boolean;
   videoUrlPrefix: string;
   hasVideoPublishScope: boolean;
 };
@@ -125,14 +128,19 @@ export async function POST(request: Request) {
     }
 
     const creatorInfo = await queryCreatorInfo(token.accessToken);
+    const allowPublicSandbox = isPublicDirectPostSandboxAllowed();
     const privacySelection = selectPrivacyLevel(
       post.privacyLevel,
       creatorInfo.privacyLevelOptions,
+      allowPublicSandbox,
     );
     directPostDebug = {
       mode: "DIRECT_POST",
+      requestedPrivacyLevel: post.privacyLevel || null,
       selectedPrivacyLevel: privacySelection.privacyLevel || null,
       creatorPrivacyOptions: creatorInfo.privacyLevelOptions || null,
+      wasPrivacyForced: privacySelection.wasPrivacyForced,
+      allowPublicSandbox,
       videoUrlPrefix: getVideoUrlPrefix(videoUrl),
       hasVideoPublishScope: hasScope(token.scope, "video.publish"),
     };
@@ -142,6 +150,9 @@ export async function POST(request: Request) {
       departmentId,
       creatorInfo: creatorInfo.raw,
       privacyLevelOptions: creatorInfo.privacyLevelOptions,
+      selectedPrivacyLevel: directPostDebug.selectedPrivacyLevel,
+      wasPrivacyForced: directPostDebug.wasPrivacyForced,
+      allowPublicSandbox: directPostDebug.allowPublicSandbox,
       hasVideoPublishScope: directPostDebug.hasVideoPublishScope,
     });
 
@@ -180,6 +191,7 @@ export async function POST(request: Request) {
       scopeUsed: "video.publish",
       publishId: result.publishId,
       status: "PROCESSING_OR_PUBLISH_COMPLETE",
+      safeDebug: directPostDebug,
       raw: result.raw,
     });
   } catch (error) {
@@ -194,8 +206,11 @@ export async function POST(request: Request) {
             post.postMode === "DIRECT_POST"
               ? directPostDebug || {
                   mode: "DIRECT_POST",
+                  requestedPrivacyLevel: post.privacyLevel || null,
                   selectedPrivacyLevel: null,
                   creatorPrivacyOptions: null,
+                  wasPrivacyForced: false,
+                  allowPublicSandbox: isPublicDirectPostSandboxAllowed(),
                   videoUrlPrefix: getVideoUrlPrefix(videoUrl),
                   hasVideoPublishScope: hasScope(token.scope, "video.publish"),
                 }
@@ -331,24 +346,57 @@ function validateLivePublishPayload(body: unknown): ValidationResult {
 function selectPrivacyLevel(
   requestedPrivacyLevel: TikTokPrivacyLevel | undefined,
   options: TikTokPrivacyLevel[] | undefined,
+  allowPublicSandbox: boolean,
 ):
-  | { ok: true; privacyLevel: TikTokPrivacyLevel }
-  | { ok: false; privacyLevel?: TikTokPrivacyLevel } {
+  | {
+      ok: true;
+      privacyLevel: TikTokPrivacyLevel;
+      wasPrivacyForced: boolean;
+    }
+  | {
+      ok: false;
+      privacyLevel?: TikTokPrivacyLevel;
+      wasPrivacyForced: boolean;
+    } {
   const sandboxPrivacyLevel: TikTokPrivacyLevel = "SELF_ONLY";
 
   if (!options || options.length === 0) {
-    return { ok: true, privacyLevel: sandboxPrivacyLevel };
+    return {
+      ok: true,
+      privacyLevel: sandboxPrivacyLevel,
+      wasPrivacyForced: requestedPrivacyLevel !== sandboxPrivacyLevel,
+    };
+  }
+
+  if (
+    allowPublicSandbox &&
+    requestedPrivacyLevel &&
+    options.includes(requestedPrivacyLevel)
+  ) {
+    return {
+      ok: true,
+      privacyLevel: requestedPrivacyLevel,
+      wasPrivacyForced: false,
+    };
   }
 
   if (options.includes(sandboxPrivacyLevel)) {
-    return { ok: true, privacyLevel: sandboxPrivacyLevel };
+    return {
+      ok: true,
+      privacyLevel: sandboxPrivacyLevel,
+      wasPrivacyForced: requestedPrivacyLevel !== sandboxPrivacyLevel,
+    };
   }
 
   if (requestedPrivacyLevel && options.includes(requestedPrivacyLevel)) {
-    return { ok: false, privacyLevel: requestedPrivacyLevel };
+    return {
+      ok: false,
+      privacyLevel: requestedPrivacyLevel,
+      wasPrivacyForced: false,
+    };
   }
 
-  return { ok: false };
+  return { ok: false, wasPrivacyForced: false };
 }
 
 function buildPostTitle(
@@ -415,6 +463,10 @@ function getVideoUrlPrefix(value: string): string {
   } catch {
     return "[invalid-url]";
   }
+}
+
+function isPublicDirectPostSandboxAllowed(): boolean {
+  return process.env.TIKTOK_ALLOW_PUBLIC_DIRECT_POST_IN_SANDBOX === "true";
 }
 
 function errorResponse(status: number, errorCode: string, message: string) {
