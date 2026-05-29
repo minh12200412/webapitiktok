@@ -59,10 +59,11 @@ export type MockTikTokVideo = {
 
 export const mockTikTokProfile: MockTikTokProfile = {
   open_id: "open_****_kdtm",
-  username: "tanphatetek_kdtm",
-  display_name: "TikTok KDTM",
-  bio_description: "Official TikTok account for Tan Phat ETEK KDTM department.",
-  profile_deep_link: "https://www.tiktok.com/@tanphatetek_kdtm",
+  username: "autoparts_workspace",
+  display_name: "Auto Parts Brand",
+  bio_description:
+    "Authorized TikTok account for an automotive parts content workspace.",
+  profile_deep_link: "https://www.tiktok.com/@autoparts_workspace",
   is_verified: false,
   follower_count: 12500,
   following_count: 120,
@@ -121,49 +122,49 @@ export const mockExecutiveSummary = {
   recommendations: [
     "Post more product demonstration videos for KOISU and garage equipment.",
     "Use direct post scheduling for morning and evening publishing windows.",
-    "Create weekly executive reports by department and TikTok account.",
+    "Create weekly team and executive reports by workspace and TikTok account.",
   ],
 };
 
 export const departments: Department[] = [
   {
     id: "kdtm",
-    name: "KDTM",
+    name: "Workspace A - Auto Parts Brand",
     accountId: "tiktok_kdtm_main",
-    nickname: "TikTok KDTM",
+    nickname: "Auto Parts Brand",
   },
   {
     id: "kd1",
-    name: "KD1",
+    name: "Workspace B - Garage Equipment",
     accountId: "tiktok_kd1_main",
-    nickname: "TikTok KD1",
+    nickname: "Garage Equipment",
   },
   {
     id: "kd2",
-    name: "KD2",
+    name: "Workspace C - Service Campaigns",
     accountId: "tiktok_kd2_main",
-    nickname: "TikTok KD2",
+    nickname: "Service Campaigns",
   },
   {
     id: "koisu",
-    name: "KOISU",
+    name: "Workspace D - Product Launch",
     accountId: "tiktok_koisu_main",
-    nickname: "TikTok KOISU",
+    nickname: "Product Launch",
   },
   {
     id: "tanphat",
-    name: "Tan Phat ETEK",
+    name: "Workspace E - Creator Studio",
     accountId: "tiktok_tanphat_main",
-    nickname: "TikTok Tan Phat ETEK",
+    nickname: "Creator Studio",
   },
 ];
 
 export const mockAccounts: MockTikTokAccount[] = [
   {
     departmentId: "kdtm",
-    department: "KDTM",
+    department: "Workspace A - Auto Parts Brand",
     accountId: "tiktok_kdtm_main",
-    nickname: "TikTok KDTM",
+    nickname: "Auto Parts Brand",
     status: "Connected",
     scopes: tiktokScopes,
     lastConnected: "2026-05-12 09:20",
@@ -171,7 +172,7 @@ export const mockAccounts: MockTikTokAccount[] = [
   },
   {
     departmentId: "kd1",
-    department: "KD1",
+    department: "Workspace B - Garage Equipment",
     accountId: "tiktok_kd1_main",
     nickname: "-",
     status: "Disconnected",
@@ -181,7 +182,7 @@ export const mockAccounts: MockTikTokAccount[] = [
   },
   {
     departmentId: "kd2",
-    department: "KD2",
+    department: "Workspace C - Service Campaigns",
     accountId: "tiktok_kd2_main",
     nickname: "-",
     status: "Disconnected",
@@ -191,9 +192,9 @@ export const mockAccounts: MockTikTokAccount[] = [
   },
   {
     departmentId: "koisu",
-    department: "KOISU",
+    department: "Workspace D - Product Launch",
     accountId: "tiktok_koisu_main",
-    nickname: "TikTok KOISU",
+    nickname: "Product Launch",
     status: "Connected",
     scopes: tiktokScopes,
     lastConnected: "2026-05-14 15:45",
@@ -201,9 +202,9 @@ export const mockAccounts: MockTikTokAccount[] = [
   },
   {
     departmentId: "tanphat",
-    department: "Tan Phat ETEK",
+    department: "Workspace E - Creator Studio",
     accountId: "tiktok_tanphat_main",
-    nickname: "TikTok Tan Phat ETEK",
+    nickname: "Creator Studio",
     status: "Token expired",
     scopes: tiktokScopes,
     lastConnected: "2026-04-28 11:05",
@@ -214,13 +215,13 @@ export const mockAccounts: MockTikTokAccount[] = [
 export const mockScheduledPosts: MockScheduledPost[] = [
   {
     scheduleId: "mock_schedule_kdtm_001",
-    department: "KDTM",
+    department: "Workspace A - Auto Parts Brand",
     scheduledAt: "2026-05-30 09:00 Asia/Ho_Chi_Minh",
     status: "SCHEDULED",
   },
   {
     scheduleId: "mock_schedule_koisu_002",
-    department: "KOISU",
+    department: "Workspace D - Product Launch",
     scheduledAt: "2026-06-02 14:30 Asia/Ho_Chi_Minh",
     status: "SCHEDULED",
   },

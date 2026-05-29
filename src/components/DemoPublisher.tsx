@@ -82,12 +82,12 @@ type SummaryReportResponse = {
 export function DemoPublisher() {
   const searchParams = useSearchParams();
   const initialDepartmentId = searchParams.get("departmentId") || "kdtm";
-  const initialDepartment =
-    departments.find((department) => department.id === initialDepartmentId) ||
+  const initialWorkspace =
+    departments.find((workspace) => workspace.id === initialDepartmentId) ||
     departments[0];
-  const [departmentId, setDepartmentId] = useState(initialDepartment.id);
+  const [departmentId, setDepartmentId] = useState(initialWorkspace.id);
   const [accountId, setAccountId] = useState(
-    searchParams.get("accountId") || initialDepartment.accountId,
+    searchParams.get("accountId") || initialWorkspace.accountId,
   );
   const [title, setTitle] = useState("KOISU WA-4018T4 High Pressure Washer");
   const [caption, setCaption] = useState(
@@ -124,9 +124,9 @@ export function DemoPublisher() {
     useState<SummaryReportResponse | null>(null);
   const [isReporting, setIsReporting] = useState(false);
 
-  const selectedDepartment = useMemo(
+  const selectedWorkspace = useMemo(
     () =>
-      departments.find((department) => department.id === departmentId) ||
+      departments.find((workspace) => workspace.id === departmentId) ||
       departments[0],
     [departmentId],
   );
@@ -137,7 +137,7 @@ export function DemoPublisher() {
   const connectHref = `/api/tiktok/oauth/start?departmentId=${encodeURIComponent(
     departmentId,
   )}&accountId=${encodeURIComponent(accountId)}`;
-  const mockOpenId = `open_****_${selectedDepartment.id}`;
+  const mockOpenId = `open_****_${selectedWorkspace.id}`;
   const hasScheduledAt = scheduleMode === "now" || scheduledAt.length > 0;
   const canPublish =
     postMode === "MEDIA_UPLOAD" ||
@@ -145,12 +145,12 @@ export function DemoPublisher() {
     (userConsent && scheduleMode === "later" && hasScheduledAt);
 
   function handleDepartmentChange(value: string) {
-    const nextDepartment =
-      departments.find((department) => department.id === value) ||
+    const nextWorkspace =
+      departments.find((workspace) => workspace.id === value) ||
       departments[0];
 
-    setDepartmentId(nextDepartment.id);
-    setAccountId(nextDepartment.accountId);
+    setDepartmentId(nextWorkspace.id);
+    setAccountId(nextWorkspace.accountId);
     setPublishResult(null);
     setClientError(null);
   }
@@ -281,9 +281,9 @@ export function DemoPublisher() {
             Login Kit, Draft Upload, Direct Post, and Schedule
           </h1>
           <p className="mt-3 max-w-3xl text-base leading-7 text-[#5f6f84]">
-            Demo flow for authorized departments to connect TikTok, upload to
-            draft/inbox with video.upload, direct publish with video.publish,
-            and schedule approved content for later backend publishing.
+            Demo flow for authorized workspaces to connect TikTok accounts,
+            upload to draft/inbox with video.upload, direct publish with
+            video.publish, schedule approved content, and review performance.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -322,7 +322,7 @@ export function DemoPublisher() {
                 <dl className="mt-4 grid gap-3 text-sm">
                   <InfoRow
                     label="Nickname"
-                    value={selectedDepartment.nickname}
+                    value={selectedWorkspace.nickname}
                   />
                   <InfoRow label="open_id" value={mockOpenId} />
                   <InfoRow label="Scopes" value={tiktokScopes.join(", ")} />
@@ -376,7 +376,7 @@ export function DemoPublisher() {
               <div className="h-[620px] w-full max-w-[330px] rounded-[2rem] border-[10px] border-[#111827] bg-[#0d1117] p-4 shadow-lg">
                 <div className="h-full rounded-[1.4rem] bg-[#171c24] p-4 text-white">
                   <div className="flex items-center justify-between text-xs text-white/70">
-                    <span>{selectedDepartment.nickname}</span>
+                    <span>{selectedWorkspace.nickname}</span>
                     <span>{postMode === "DIRECT_POST" ? "Direct" : "Draft"}</span>
                   </div>
                   <div className="mt-6 flex h-[370px] items-center justify-center rounded-xl border border-white/10 bg-[#232b36] text-center">
@@ -523,7 +523,7 @@ export function DemoPublisher() {
                     Timezone: Asia/Ho_Chi_Minh
                   </p>
                   <p className="text-sm leading-6 text-[#42526a]">
-                    The scheduled time is stored by TanPhatETek TikTok
+                    The scheduled time is stored by TanPhatETek Social
                     Publisher. At the scheduled time, the backend calls TikTok
                     Direct Post API on behalf of the authorized account.
                   </p>
@@ -579,9 +579,9 @@ export function DemoPublisher() {
       <section className="mt-6 rounded-xl border border-[#e1e6ef] bg-white p-6 shadow-sm">
         <StepLabel number="5" title="TikTok Reporting & Executive Summary" />
         <p className="mt-4 max-w-4xl text-sm leading-6 text-[#5f6f84]">
-          Reporting demo for leadership: read authorized TikTok profile data,
-          account statistics, recent public videos, and generate a mock AI
-          executive summary from TikTok data authorized by the user.
+          Reporting demo for teams and executives: read authorized TikTok
+          profile data, account statistics, recent public videos, and generate
+          a mock AI executive summary from TikTok data authorized by the user.
         </p>
         <div className="mt-5 flex flex-wrap gap-3">
           <button
@@ -822,15 +822,15 @@ function DepartmentFields({
   return (
     <div className="grid gap-4 sm:grid-cols-2">
       <label className="grid gap-2 text-sm font-semibold text-[#1d2433]">
-        Department
+        Workspace
         <select
           value={departmentId}
           onChange={(event) => onDepartmentChange(event.target.value)}
           className="min-h-11 rounded-lg border border-[#cfd7e3] bg-white px-3 text-sm font-medium outline-none focus:border-cyan-500"
         >
-          {departments.map((department) => (
-            <option key={department.id} value={department.id}>
-              {department.name}
+          {departments.map((workspace) => (
+            <option key={workspace.id} value={workspace.id}>
+              {workspace.name}
             </option>
           ))}
         </select>

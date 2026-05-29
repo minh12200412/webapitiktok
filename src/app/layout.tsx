@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "TanPhatETek TikTok Publisher",
+  title: "TanPhatETek Social Publisher",
   description:
-    "Internal TikTok publishing tool for authorized Tan Phat ETEK departments.",
+    "Social publishing platform for authorized business workspaces, brands, agencies, and creators.",
 };
 
 export default function RootLayout({

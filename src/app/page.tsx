@@ -12,21 +12,23 @@ export default function Home() {
             <div>
               <StatusBadge tone="info">Demo/Sandbox Mode</StatusBadge>
               <h1 className="mt-6 max-w-3xl text-4xl font-bold tracking-normal text-[#111827] sm:text-5xl">
-                TanPhatETek TikTok Publisher
+                TanPhatETek Social Publisher
               </h1>
               <p className="mt-4 text-xl font-semibold text-[#42526a]">
-                Internal TikTok publishing tool for authorized departments.
+                A social publishing platform for businesses, brands, and
+                creators to connect TikTok accounts, prepare approved content,
+                schedule posts, and analyze performance.
               </p>
               <p className="mt-5 max-w-3xl text-base leading-7 text-[#5f6f84]">
-                This web app allows authorized departments to connect their
+                This web app allows authorized users and workspaces to connect
                 TikTok accounts, publish approved marketing content, schedule
-                Direct Post publishing, and generate internal TikTok performance
+                Direct Post publishing, and generate business performance
                 reports using authorized TikTok data.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <ButtonLink href="/tiktok-publisher-demo">View Demo</ButtonLink>
                 <ButtonLink href="/admin/tiktok-accounts" variant="secondary">
-                  Manage TikTok Accounts
+                  Manage Social Accounts
                 </ButtonLink>
                 <ButtonLink href="/privacy" variant="ghost">
                   Privacy Policy
@@ -83,7 +85,7 @@ export default function Home() {
             <FeatureCard
               accent="cyan"
               title="Login Kit OAuth"
-              description="Connects an authorized department TikTok account through OAuth and stores only server-side token metadata in production."
+              description="Connects an authorized workspace TikTok account through OAuth and stores only server-side token metadata in production."
             />
             <FeatureCard
               accent="rose"
@@ -93,12 +95,12 @@ export default function Home() {
             <FeatureCard
               accent="emerald"
               title="Direct Post & Scheduling"
-              description="Direct publishes approved content with video.publish and stores internal schedules for later backend publishing."
+              description="Direct publishes approved content with video.publish and stores workspace schedules for later backend publishing."
             />
             <FeatureCard
               accent="amber"
               title="TikTok Reporting & Executive Summary"
-              description="Reads authorized profile, stats, and public videos to generate leadership-ready performance summaries."
+              description="Reads authorized profile, stats, and public videos to generate team and executive performance summaries."
             />
           </div>
         </section>

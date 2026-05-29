@@ -2,17 +2,17 @@ import { PageShell } from "@/components/PageShell";
 import { StatusBadge } from "@/components/StatusBadge";
 
 const terms = [
-  "Only authorized employees and departments of Tan Phat ETEK may use this tool.",
-  "Content must be reviewed and approved internally before upload.",
+  "Users must be authorized representatives of the TikTok accounts and workspaces they connect.",
+  "Content must be reviewed and approved by the responsible workspace before upload or publishing.",
   "The app can upload content to TikTok draft/inbox flow using video.upload.",
   "The app can directly publish approved content using video.publish only after the user gives clear consent in the app.",
-  "Scheduled posts are stored by TanPhatETek TikTok Publisher and the backend publishes them at the scheduled time through TikTok Direct Post API.",
-  "Reports are for internal business analysis only.",
+  "Scheduled posts are stored by TanPhatETek Social Publisher and the backend publishes them at the scheduled time through TikTok Direct Post API.",
+  "Reports are for business performance analysis by authorized teams and executives.",
   "Users must only connect TikTok accounts they are authorized to manage.",
   "The app reads public video metadata and account statistics only after TikTok OAuth authorization.",
-  "Users must comply with TikTok policies and Tan Phat ETEK company policy.",
+  "Users must comply with TikTok policies, applicable law, and their workspace policies.",
   "Users can disconnect their TikTok account from this app.",
-  "The company may suspend access if misuse is detected.",
+  "Tan Phat ETEK may suspend access if misuse is detected.",
   "This app does not use TikTok Share Kit or Webhook in this phase.",
 ];
 
@@ -26,7 +26,8 @@ export default function TermsPage() {
         </h1>
         <p className="mt-4 text-base leading-7 text-[#5f6f84]">
           These Terms of Service govern access to and use of the TanPhatETek
-          TikTok Publisher application by authorized Tan Phat ETEK personnel.
+          Social Publisher platform by authorized business users, brands,
+          agencies, creators, and client workspaces.
         </p>
 
         <section className="mt-8 rounded-xl border border-[#e1e6ef] bg-white p-6 shadow-sm">

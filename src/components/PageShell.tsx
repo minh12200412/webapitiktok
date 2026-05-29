@@ -32,7 +32,7 @@ export function PageShell({ children }: PageShellProps) {
       {children}
       <footer className="border-t border-[#e1e6ef] bg-white">
         <div className="mx-auto flex max-w-6xl flex-col gap-2 px-5 py-6 text-sm text-[#6d7c91] sm:flex-row sm:items-center sm:justify-between">
-          <span>Tan Phat ETEK internal TikTok publishing review app.</span>
+          <span>TanPhatETek Social Publisher for authorized workspaces.</span>
           <span>Contact: qttt.tanphatetek@gmail.com</span>
         </div>
       </footer>

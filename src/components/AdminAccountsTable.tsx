@@ -210,13 +210,14 @@ export function AdminAccountsTable() {
     <main className="mx-auto max-w-6xl px-5 py-10">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <StatusBadge tone="info">Internal Admin</StatusBadge>
+          <StatusBadge tone="info">Workspace Console</StatusBadge>
           <h1 className="mt-4 text-3xl font-bold text-[#111827] sm:text-4xl">
-            TikTok Accounts by Department
+            Connected Social Accounts by Workspace
           </h1>
           <p className="mt-3 max-w-3xl text-base leading-7 text-[#5f6f84]">
-            Manage department TikTok account connections without showing tokens
-            or TikTok client secrets in the browser.
+            Each workspace can connect a TikTok account it is authorized to
+            manage. Tokens and TikTok client secrets are never shown in the
+            browser.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -233,7 +234,7 @@ export function AdminAccountsTable() {
 
       {connectedDepartment ? (
         <p className="mt-6 rounded-lg border border-cyan-200 bg-cyan-50 px-4 py-3 text-sm font-semibold text-cyan-800">
-          OAuth callback returned for department: {connectedDepartment}. The
+          OAuth callback returned for workspace: {connectedDepartment}. The
           table status below is based only on live token store records.
         </p>
       ) : null}
@@ -253,7 +254,7 @@ export function AdminAccountsTable() {
           <table className="w-full min-w-[920px] border-collapse text-left text-sm">
             <thead className="bg-[#f3f6fa] text-xs uppercase text-[#6d7c91]">
               <tr>
-                <th className="px-4 py-4 font-semibold">Department</th>
+                <th className="px-4 py-4 font-semibold">Workspace</th>
                 <th className="px-4 py-4 font-semibold">Account ID</th>
                 <th className="px-4 py-4 font-semibold">TikTok nickname</th>
                 <th className="px-4 py-4 font-semibold">Status</th>
@@ -336,7 +337,7 @@ export function AdminAccountsTable() {
               <table className="w-full min-w-[760px] text-left text-sm">
                 <thead className="bg-[#f3f6fa] text-xs uppercase text-[#6d7c91]">
                   <tr>
-                    <th className="px-4 py-3">Department</th>
+                    <th className="px-4 py-3">Workspace</th>
                     <th className="px-4 py-3">Account ID</th>
                     <th className="px-4 py-3">Reporting scopes</th>
                     <th className="px-4 py-3">Actions</th>
@@ -465,7 +466,7 @@ export function AdminAccountsTable() {
             Scheduled Posts
           </h2>
           <p className="mt-2 text-sm text-[#5f6f84]">
-            Mock internal schedule queue. At the scheduled time, the backend
+            Mock workspace schedule queue. At the scheduled time, the backend
             calls TikTok Direct Post API with the authorized account.
           </p>
         </div>
@@ -474,7 +475,7 @@ export function AdminAccountsTable() {
             <thead className="bg-[#f3f6fa] text-xs uppercase text-[#6d7c91]">
               <tr>
                 <th className="px-4 py-4 font-semibold">scheduleId</th>
-                <th className="px-4 py-4 font-semibold">Department</th>
+                <th className="px-4 py-4 font-semibold">Workspace</th>
                 <th className="px-4 py-4 font-semibold">scheduledAt</th>
                 <th className="px-4 py-4 font-semibold">Status</th>
                 <th className="px-4 py-4 font-semibold">Action</th>

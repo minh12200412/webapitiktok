@@ -27,14 +27,14 @@ const sections = [
     title: "Purpose of Processing",
     items: [
       "Identify the connected TikTok account.",
-      "Map the TikTok account to an internal Tan Phat ETEK department.",
+      "Map the TikTok account to an authorized business workspace.",
       "Upload approved content to TikTok draft/inbox flow using TikTok Login Kit and Content Posting API.",
       "Directly publish approved content to TikTok only after the user gives clear confirmation in this app.",
       "Store scheduled post metadata and publish later through the backend using TikTok Direct Post API on behalf of the authorized account.",
-      "Generate internal TikTok performance reports for leadership review.",
-      "Help Tan Phat ETEK leadership review TikTok content performance.",
-      "Improve content planning and publishing schedules by department and TikTok account.",
-      "Support internal auditing of approved marketing publishing workflows.",
+      "Generate business performance reporting for teams and executives.",
+      "Help authorized workspaces review TikTok content performance.",
+      "Improve content planning and publishing schedules by workspace and TikTok account.",
+      "Support auditing of approved marketing publishing workflows.",
     ],
   },
   {
@@ -51,7 +51,7 @@ const sections = [
     items: [
       "We do not sell TikTok user data.",
       "We do not share TikTok user data with advertisers.",
-      "Data is used only for authorized internal publishing operations and app review demonstration.",
+      "Data is used only for authorized publishing workflows, reporting, and app review demonstration.",
     ],
   },
   {
@@ -83,8 +83,9 @@ export default function PrivacyPage() {
         </h1>
         <p className="mt-4 text-base leading-7 text-[#5f6f84]">
           This Privacy Policy describes how Tan Phat ETEK processes information
-          for the TanPhatETek TikTok Publisher application. The app is intended
-          for authorized employees and departments of Tan Phat ETEK.
+          for the TanPhatETek Social Publisher application. Our platform is
+          used by authorized business users, brands, agencies, and creators to
+          manage content publishing workflows.
         </p>
 
         <div className="mt-8 rounded-xl border border-[#e1e6ef] bg-white p-5 shadow-sm">

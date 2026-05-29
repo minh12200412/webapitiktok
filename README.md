@@ -1,8 +1,8 @@
-# TanPhatETek TikTok Publisher
+# TanPhatETek Social Publisher
 
-Public Next.js web app for TikTok Developer App Review and internal TikTok publisher management for Tan Phat ETEK.
+Public Next.js web app for TikTok Developer App Review and social publishing workflows for businesses, brands, agencies, creators, and authorized client workspaces.
 
-The phase 1 app runs in mock/sandbox mode. It demonstrates Login Kit OAuth, department account mapping, approved content preparation, Content Posting API upload to TikTok draft/inbox flow, Direct Post, scheduled publishing, TikTok reporting, and executive summaries. It does not store live tokens and does not call live TikTok APIs by default.
+The phase 1 app runs in mock/sandbox mode. It demonstrates Login Kit OAuth, workspace account mapping, approved content preparation, Content Posting API upload to TikTok draft/inbox flow, Direct Post, scheduled publishing, TikTok reporting, and team and executive summaries. It does not store live tokens and does not call live TikTok APIs by default.
 
 ## Local Setup
 
@@ -62,13 +62,13 @@ DATABASE_URL=<Supabase or Vercel Postgres connection string>
 TOKEN_ENCRYPTION_KEY=<strong random key>
 ```
 
-Flow per department:
+Flow per workspace:
 
 1. Open `/admin/tiktok-accounts`.
-2. Click `Connect` for the target department/account ID.
+2. Click `Connect` for the target workspace/account ID.
 3. TikTok redirects to `/api/tiktok/oauth/callback` with `code` and `state`.
 4. The backend exchanges the code for `access_token`, `refresh_token`, `open_id`, scope, and expiry metadata.
-5. Tokens are encrypted server-side and stored by `accountId` and `departmentId`.
+5. Tokens are encrypted server-side and stored by `accountId` and workspace identifier.
 6. Admin UI shows Connected when token metadata exists, but never displays tokens.
 
 If `DATABASE_URL` is not configured, the app uses an in-memory token store for local development only and shows: `Live tokens are not persisted without DB`. This is not suitable for production because Vercel serverless instances do not guarantee memory persistence.
@@ -348,7 +348,7 @@ Do not enable Share Kit.
 
 1. Open the landing page.
 2. Open `/tiktok-publisher-demo`.
-3. Select a department and connect TikTok sandbox/mock.
+3. Select a workspace and connect TikTok sandbox/mock.
 4. Show connected TikTok account, masked open_id, and scopes.
 5. Prepare approved content.
 6. Upload to TikTok draft and show `video.upload`, `SEND_TO_USER_INBOX`, and `publishId`.
@@ -356,8 +356,8 @@ Do not enable Share Kit.
 8. Switch to Schedule for later, choose a future time, and show `SCHEDULED` with `scheduleId`.
 9. Fetch Profile & Stats Report and show `user.info.profile` + `user.info.stats`.
 10. Fetch Recent Public Videos and show `video.list`.
-11. Generate AI Executive Summary for leadership.
-12. Open `/admin/tiktok-accounts`, show department account mapping, Direct Post Enabled, Reporting Access, Scheduled Posts, and Run now.
+11. Generate AI Executive Summary for teams and executives.
+12. Open `/admin/tiktok-accounts`, show workspace account mapping, Direct Post Enabled, Reporting Access, Scheduled Posts, and Run now.
 
 ## API Routes
 
@@ -408,8 +408,8 @@ Direct Post payload uses `"postMode": "DIRECT_POST"` and requires `"userConsent"
 - Secrets belong in environment variables.
 - Production token storage requires a database, encryption, and restricted access controls.
 - Direct Post requires explicit user consent in the publishing UI.
-- Scheduled post metadata is stored by the internal system before backend publishing.
-- Reporting data is used for internal leadership review and content planning.
+- Scheduled post metadata is stored by the platform before backend publishing.
+- Reporting data is used for business performance reporting and content planning.
 - Public video metadata and account statistics are read only after OAuth authorization.
 - This phase uses mock/in-memory data only.
 
